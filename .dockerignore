@@ -1,0 +1,14 @@
+node_modules
+.bun
+.nuxt
+.output
+dist
+.git
+.gitignore
+*.md
+.env
+.env.*
+!.env.example
+Dockerfile*
+docker-compose*.yml
+run.sh
