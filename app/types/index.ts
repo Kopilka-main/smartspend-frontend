@@ -39,6 +39,7 @@ export type CustomSet = {
   usersCount: number
   isPrivate: boolean
   itemsCount: number
+  itemNames: string[]
   author: {
     id: string
     displayName: string

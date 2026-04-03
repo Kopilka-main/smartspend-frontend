@@ -36,6 +36,14 @@ const typeLabel = computed(() => {
 
   return ''
 })
+
+const items = computed(() => {
+  return props.item.itemNames.slice(0, 4)
+})
+
+const additionalItemsCount = computed(() => {
+  return props.item.itemNames.length > 4 ? props.item.itemNames.length - 4 : 0
+})
 </script>
 
 <template>
@@ -76,12 +84,19 @@ const typeLabel = computed(() => {
 
       <div class="card-items mt-2 flex flex-wrap gap-4">
         <span
+          v-for="name in items"
+          :key="name"
           class="card-item-tag text-11 text-text-3 bg-surface-2 border border-border rounded-5 px-7 py-2"
         >
-          Netflix
+          {{ name }}
         </span>
 
-        <span class="card-item-more text-11 text-text-3 px-4 py-2"> +1 </span>
+        <span
+          v-if="additionalItemsCount"
+          class="card-item-more text-11 text-text-3 px-4 py-2"
+        >
+          +{{ additionalItemsCount }}
+        </span>
       </div>
     </div>
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useMySets } from '~/features/account/queries/useMySets'
+
 import AccountEditForm from '~/features/account/components/AccountEditForm.vue'
 import AccountInfoCard from '~/features/account/components/AccountInfoCard.vue'
 import AccountPostsSection from '~/features/account/components/posts/AccountPostsSection.vue'
@@ -15,6 +17,12 @@ definePageMeta({
 
 useHead({
   title: 'Аккаунт'
+})
+
+const { data } = useMySets()
+
+const mySets = computed(() => {
+  return data.value ? data.value.data : []
 })
 
 const isEditAccount = ref(false)
@@ -58,7 +66,7 @@ const currentTabComponent = computed(() => {
           :class="{ 'text-text! border-b-text': activeTab === 'sets' }"
           @click="activeTab = 'sets'"
         >
-          Наборы · 0
+          Наборы · {{ mySets.length }}
         </button>
 
         <button
@@ -71,7 +79,7 @@ const currentTabComponent = computed(() => {
         </button>
       </div>
 
-      <component :is="currentTabComponent" />
+      <component :is="currentTabComponent" :items="mySets" />
     </div>
   </main>
 </template>
