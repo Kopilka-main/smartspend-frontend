@@ -53,6 +53,8 @@ const { currentUser } = useCurrentUser()
       </div>
 
       <ProfileFinancialSection />
+
+      <ProfileSetsSection />
     </div>
   </main>
 </template>

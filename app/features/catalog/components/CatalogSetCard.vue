@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { formatDate } from '~/utils/formatDate'
+import { formatSource } from '~/features/sets/utils/formatSource'
 import type { CustomSet } from '~/types'
+import { formatType } from '~/features/sets/utils/formatType'
 
 type CatalogSetCardProps = {
   item: CustomSet
@@ -8,33 +10,14 @@ type CatalogSetCardProps = {
 
 const props = defineProps<CatalogSetCardProps>()
 
+const router = useRouter()
+
 const sourceLabel = computed(() => {
-  console.log(props.item)
-  if (props.item.source === 'smartspend') {
-    return 'Smartspend'
-  }
-
-  if (props.item.source === 'community') {
-    return 'Сообщество'
-  }
-
-  if (props.item.source === 'own') {
-    return 'Мой набор'
-  }
-
-  return ''
+  return formatSource(props.item.source)
 })
 
 const typeLabel = computed(() => {
-  if (props.item.setType === 'base') {
-    return 'Основа'
-  }
-
-  if (props.item.setType === 'custom') {
-    return 'Дополнение'
-  }
-
-  return ''
+  return formatType(props.item.setType)
 })
 
 const items = computed(() => {
@@ -44,11 +27,16 @@ const items = computed(() => {
 const additionalItemsCount = computed(() => {
   return props.item.itemNames.length > 4 ? props.item.itemNames.length - 4 : 0
 })
+
+const onOpenDetails = () => {
+  router.push(`/sets/${props.item.id}`)
+}
 </script>
 
 <template>
   <div
     class="catalog-card bg-surface rounded-14 shadow-main overflow-hidden cursor-pointer transition-[box-shadow,transform] duration-150 hover:shadow-app-md hover:-translate-y-1 flex flex-col"
+    @click="onOpenDetails"
   >
     <div
       class="card-accent-bar h-3 shrink-0"

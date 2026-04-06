@@ -50,6 +50,34 @@ export type CustomSet = {
   createdAt: Date
 }
 
+export type CustomSetDetails = {
+  aboutText: string
+  aboutTitle: string
+  added: any
+  amount: number
+  amountLabel: string
+  author: {
+    id: string
+    displayName: string
+    initials: string
+    color: string
+    avatarUrl: string
+  } | null
+  categoryId: string
+  color: string
+  createdAt: Date
+  description: string
+  hidden: boolean
+  id: string
+  isPrivate: boolean
+  setType: string
+  source: string
+  title: string
+  updatedAt: Date
+  usersCount: number
+  items: SetItem[]
+}
+
 export type SetItem = {
   name: string
   basePrice: number
@@ -60,6 +88,32 @@ export type SetItem = {
   qty?: number
   unit?: string
   dailyUse?: number
+}
+
+export type EnvelopeItem = {
+  amount: number
+  categoryId: string
+  createdAt: Date
+  envelopeType: string
+  id: number
+  itemsCount: number
+  name: string
+  period: any
+  setId: string
+  updatedAt: Date
+  userId: string
+}
+
+export type SetComment = {
+  createdAt: Date
+  dislikesCount: number
+  id: number
+  initials: string
+  likesCount: number
+  name: string
+  setId: string
+  text: string
+  userId: string
 }
 
 export type CreateSetPayload = {}

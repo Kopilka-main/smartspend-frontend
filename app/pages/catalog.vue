@@ -21,10 +21,12 @@ useHead({
   title: 'Каталог наборов'
 })
 
+const route = useRoute()
+
 const filters = ref({
   category: 'all',
   q: '',
-  source: 'all',
+  source: route.query.source ? (route.query.source as string) : 'all',
   setType: 'all',
   sort: 'popular'
 })

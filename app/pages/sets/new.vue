@@ -3,13 +3,13 @@ import { useForm } from 'vee-validate'
 import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
 
-import { useCreateSet } from '~/features/new-set/queries/useCreateSet'
+import { useCreateSet } from '~/features/sets/queries/useCreateSet'
 import type { SetItem } from '~/types'
 
-import NewSetViewModificatorSelect from '~/features/new-set/components/NewSetViewModificatorSelect.vue'
-import NewSetCategoriesSelect from '~/features/new-set/components/NewSetCategoriesSelect.vue'
-import NewSetItemForm from '~/features/new-set/components/NewSetItemForm.vue'
-import NewSetItem from '~/features/new-set/components/NewSetItem.vue'
+import NewSetViewModificatorSelect from '~/features/sets/components/NewSetViewModificatorSelect.vue'
+import NewSetCategoriesSelect from '~/features/sets/components/NewSetCategoriesSelect.vue'
+import NewSetItemForm from '~/features/sets/components/NewSetItemForm.vue'
+import NewSetItem from '~/features/sets/components/NewSetItem.vue'
 
 definePageMeta({
   layout: 'dashboard',
