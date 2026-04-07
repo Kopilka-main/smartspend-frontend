@@ -1,6 +1,6 @@
 import { useMutation } from '@pinia/colada'
 
-export const useUpdateReaction = () => {
+export const useUpdateReaction = (onSuccess: () => void) => {
   const { $api } = useNuxtApp()
 
   return useMutation({
@@ -10,6 +10,9 @@ export const useUpdateReaction = () => {
       type: string
     }) => {
       return await $api('/reactions', { method: 'POST', body: { ...vars } })
+    },
+    onSuccess: () => {
+      onSuccess()
     }
   })
 }

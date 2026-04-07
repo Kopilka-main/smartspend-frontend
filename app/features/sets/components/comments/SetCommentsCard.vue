@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { useQueryCache } from '@pinia/colada'
+
 import { useSetComments } from '~/features/sets/queries/useSetComments'
 import { useAddSetComment } from '~/features/sets/queries/useAddSetComment'
 
 import SetCommentItem from '~/features/sets/components/comments/SetCommentItem.vue'
 
+const queryCache = useQueryCache()
 const route = useRoute()
 
 const commentsType = ref('new')
@@ -29,6 +32,16 @@ const onSubmit = () => {
 
   mutate({
     text: commentText.value
+  })
+}
+
+const onUpdateComments = async () => {
+  await queryCache.invalidateQueries({
+    key: ['set-comments', route.params.id as string, commentsType.value]
+  })
+
+  await queryCache.invalidateQueries({
+    key: ['reactions']
   })
 }
 </script>
@@ -84,6 +97,7 @@ const onSubmit = () => {
         v-for="comment in comments"
         :key="comment.id"
         :comment="comment"
+        @update="onUpdateComments"
       />
     </div>
 

@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { useQueryCache } from '@pinia/colada'
+import { useCurrentUser } from '~/composables/useCurrentUser'
 import { formatDate } from '~/utils/formatDate'
 import { formatSource } from '~/features/sets/utils/formatSource'
 import { formatType } from '~/features/sets/utils/formatType'
 import { useAddToEnvelope } from '~/features/sets/queries/useAddToEnvelope'
 import { useRemoveFromEnvelope } from '~/features/sets/queries/useRemoveFromEnvelope'
 import { useEnvelopes } from '~/features/sets/queries/useEnvelopes'
+import { useUpdateReaction } from '~/queries/useUpdateReaction'
+import { useReactions } from '~/queries/useReactions'
 
 import type { CustomSetDetails } from '~/types'
 
@@ -13,6 +17,9 @@ type SetDetailsCardProps = {
 }
 
 const props = defineProps<SetDetailsCardProps>()
+
+const { currentUser } = useCurrentUser()
+const queryCache = useQueryCache()
 
 const source = computed(() => {
   return formatSource(props.item?.source as string)
@@ -35,9 +42,52 @@ const isInEnvelope = computed(() => {
 const addToEnvelope = useAddToEnvelope(props.item?.id as string)
 const removeFromEnvelope = useRemoveFromEnvelope(props.item?.id as string)
 
-const onToggleLike = () => {}
+const { data: reactionsData } = useReactions()
+const updateReaction = useUpdateReaction(() => {
+  queryCache.invalidateQueries({ key: ['reactions'] })
+})
 
-const onToggleDislike = () => {}
+const reactions = computed(() => {
+  return reactionsData.value
+    ? reactionsData.value.data.filter(
+        (reaction) => reaction.targetType === 'set'
+      )
+    : []
+})
+
+const isReactedAsLike = computed(() => {
+  return reactions.value.find(
+    (reaction) =>
+      reaction.type === 'like' &&
+      reaction.userId === currentUser.value?.id &&
+      reaction.targetId === (props.item?.id.toString() as string)
+  )
+})
+
+const isReactedAsDislike = computed(() => {
+  return reactions.value.find(
+    (reaction) =>
+      reaction.type === 'dislike' &&
+      reaction.userId === currentUser.value?.id &&
+      reaction.targetId === (props.item?.id.toString() as string)
+  )
+})
+
+const onToggleLike = () => {
+  updateReaction.mutate({
+    targetType: 'set',
+    targetId: props.item?.id.toString() as string,
+    type: 'like'
+  })
+}
+
+const onToggleDislike = () => {
+  updateReaction.mutate({
+    targetType: 'set',
+    targetId: props.item?.id.toString() as string,
+    type: 'dislike'
+  })
+}
 </script>
 
 <template>
@@ -234,13 +284,14 @@ const onToggleDislike = () => {}
 
         <button
           type="button"
-          class="inline-flex items-center gap-6 rounded-10 border border-accent-green-border bg-accent-green-light px-16 py-10 text-13 font-medium text-accent-green transition-colors hover:border-accent-green hover:text-accent-green"
+          class="inline-flex items-center gap-6 rounded-10 border border-accent-green-border px-16 py-10 text-13 font-medium text-accent-green transition-colors hover:border-accent-green hover:text-accent-green"
+          :class="{ 'bg-accent-green-light!': isReactedAsLike }"
           @click="onToggleLike"
         >
           <svg
             width="14"
             height="14"
-            fill="currentColor"
+            :fill="isReactedAsLike ? 'currentColor' : 'none'"
             stroke="currentColor"
             viewBox="0 0 24 24"
             stroke-width="2"
@@ -259,13 +310,14 @@ const onToggleDislike = () => {}
 
         <button
           type="button"
-          class="inline-flex items-center gap-6 rounded-10 border border-accent-green-border bg-accent-green-light px-16 py-10 text-13 font-medium text-accent-green transition-colors hover:border-accent-green hover:text-accent-green"
+          class="inline-flex items-center gap-6 rounded-10 border border-accent-green-border px-16 py-10 text-13 font-medium text-accent-green transition-colors hover:border-accent-green hover:text-accent-green"
+          :class="{ 'bg-accent-green-light!': isReactedAsDislike }"
           @click="onToggleDislike"
         >
           <svg
             width="14"
             height="14"
-            fill="currentColor"
+            :fill="isReactedAsDislike ? 'currentColor' : 'none'"
             stroke="currentColor"
             viewBox="0 0 24 24"
             stroke-width="2"

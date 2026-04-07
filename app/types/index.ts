@@ -117,3 +117,12 @@ export type SetComment = {
 }
 
 export type CreateSetPayload = {}
+
+export type Reaction = {
+  createdAt: Date
+  id: number
+  targetId: string
+  targetType: string
+  type: string
+  userId: string
+}

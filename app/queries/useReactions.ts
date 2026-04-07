@@ -1,4 +1,5 @@
 import { useQuery } from '@pinia/colada'
+import type { Reaction } from '~/types'
 
 export const useReactions = () => {
   const { $api } = useNuxtApp()
@@ -6,7 +7,9 @@ export const useReactions = () => {
   return useQuery({
     key: ['reactions'],
     query: async () => {
-      return await $api('/reactions/my', { method: 'GET' })
+      return await $api<{ data: Reaction[] }>('/reactions/my', {
+        method: 'GET'
+      })
     }
   })
 }

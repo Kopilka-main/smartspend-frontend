@@ -35,10 +35,14 @@ export default defineNuxtConfig({
     disableServerSideAuth: false,
     originEnvKey: 'NUXT_AUTH_ORIGIN',
     baseURL: 'https://smartspend.i20h.ru/api/v1',
+    sessionRefresh: {
+      enablePeriodically: 5 * 60 * 1000
+    },
     provider: {
       type: 'local',
       token: {
-        signInResponseTokenPointer: '/data/tokens/accessToken'
+        signInResponseTokenPointer: '/data/tokens/accessToken',
+        maxAgeInSeconds: 60 * 60 * 1000
       },
       session: {
         dataResponsePointer: '/data'

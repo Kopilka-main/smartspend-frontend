@@ -2,6 +2,8 @@
 import { formatDistanceToNow } from 'date-fns'
 import { ru } from 'date-fns/locale'
 
+import { useCurrentUser } from '~/composables/useCurrentUser'
+import { useReactions } from '~/queries/useReactions'
 import { useUpdateReaction } from '~/queries/useUpdateReaction'
 import type { SetComment } from '~/types'
 
@@ -11,6 +13,10 @@ type SetCommentItem = {
 
 const props = defineProps<SetCommentItem>()
 
+const emit = defineEmits<{
+  (e: 'update'): void
+}>()
+
 const timeAgo = computed(() => {
   return formatDistanceToNow(props.comment.createdAt, {
     locale: ru,
@@ -18,11 +24,40 @@ const timeAgo = computed(() => {
   })
 })
 
-const updateReaction = useUpdateReaction()
+const { currentUser } = useCurrentUser()
+const { data } = useReactions()
+
+const reactions = computed(() => {
+  return data.value
+    ? data.value.data.filter((reaction) => reaction.targetType === 'comment')
+    : []
+})
+
+const isReactedAsLike = computed(() => {
+  return reactions.value.find(
+    (reaction) =>
+      reaction.type === 'like' &&
+      reaction.userId === currentUser.value?.id &&
+      reaction.targetId === props.comment.id.toString()
+  )
+})
+
+const isReactedAsDislike = computed(() => {
+  return reactions.value.find(
+    (reaction) =>
+      reaction.type === 'dislike' &&
+      reaction.userId === currentUser.value?.id &&
+      reaction.targetId === props.comment.id.toString()
+  )
+})
+
+const updateReaction = useUpdateReaction(() => {
+  emit('update')
+})
 
 const onToggleLike = () => {
   updateReaction.mutate({
-    targetType: 'set_comment',
+    targetType: 'comment',
     targetId: props.comment.id.toString(),
     type: 'like'
   })
@@ -63,12 +98,13 @@ const onToggleDislike = () => {
         <button
           type="button"
           class="c-like liked flex items-center gap-4 border-0 bg-transparent p-0 font-secondary text-11 text-text-3 transition-colors duration-150 hover:text-accent-green"
+          :class="{ 'text-accent-red!': isReactedAsLike }"
           @click="onToggleLike"
         >
           <svg
             width="11"
             height="11"
-            fill="none"
+            :fill="isReactedAsLike ? 'currentColor' : 'none'"
             stroke="currentColor"
             viewBox="0 0 24 24"
             stroke-width="2"
@@ -87,12 +123,13 @@ const onToggleDislike = () => {
         <button
           type="button"
           class="c-like c-dislike disliked flex items-center gap-4 border-0 bg-transparent p-0 font-secondary text-11 text-text-3 transition-colors duration-150 hover:text-accent-red"
+          :class="{ 'text-accent-red!': isReactedAsDislike }"
           @click="onToggleDislike"
         >
           <svg
             width="11"
             height="11"
-            fill="none"
+            :fill="isReactedAsDislike ? 'currentColor' : 'none'"
             stroke="currentColor"
             viewBox="0 0 24 24"
             stroke-width="2"
