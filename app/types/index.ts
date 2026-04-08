@@ -126,3 +126,50 @@ export type Reaction = {
   type: string
   userId: string
 }
+
+export type FeedArticle = {
+  id: string
+  type: string
+  title: string
+  articleType: string
+  categoryId: string
+  preview: string
+  publishedAt: Date
+  status: string
+  viewsCount: number
+  likesCount: number
+  dislikesCount: number
+  commentsCount: number
+  linkedSetId: string
+  linkedSetTitle: string
+  author: {
+    id: string
+    displayName: string
+    username: string
+    initials: string
+    color: string
+    avatarUrl: string
+  }
+  createdAt: Date
+}
+
+export type FeedSet = {
+  amount: number
+  articleType: any
+  author: any
+  categoryId: string
+  color: string
+  createdAt: Date
+  dislikesCount: number | null
+  id: string
+  itemsCount: number
+  likesCount: number | null
+  preview: string
+  publishedAt: Date | null
+  source: string
+  title: string
+  type: string
+  usersCount: number
+  viewsCount: number | null
+  commentsCount: number | null
+}
