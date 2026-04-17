@@ -31,6 +31,8 @@ const sortLabel = computed(() => {
       return 'За 7 дней'
     case 'popular_30d':
       return 'За месяц'
+    default:
+      return ''
   }
 })
 

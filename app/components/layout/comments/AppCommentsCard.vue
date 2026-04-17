@@ -18,7 +18,7 @@
     </div>
 
     <div class="comments-list">
-      <div v-for="comment in comments" class="comment-wrap">
+      <div v-for="(comment, index) in comments" :key="index" class="comment-wrap">
         <div class="comment-item">
           <CommentItem
             name="{c.name}"

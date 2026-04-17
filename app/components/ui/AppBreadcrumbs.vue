@@ -21,7 +21,7 @@ const onSwitchPage = (item: BreadcrumbItem) => {
 
 <template>
   <div class="flex items-center gap-6 text-12 tracking-[-0.01em] text-text-3">
-    <template v-for="item in items">
+    <template v-for="(item, index) in items" :key="index">
       <span
         class="cursor-pointer transition-colors duration-150 hover:text-text"
         :class="{ 'cursor-default! text-text-2!': !item.href }"
