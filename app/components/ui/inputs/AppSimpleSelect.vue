@@ -1,10 +1,10 @@
 <script setup lang="ts">
-type AppSelectProps = {
+type AppSimpleSelectProps = {
   label: string
   items: any[]
 }
 
-const props = defineProps<AppSelectProps>()
+const props = defineProps<AppSimpleSelectProps>()
 
 const modelValue = defineModel<string>({ default: 'all' })
 

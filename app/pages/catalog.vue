@@ -3,7 +3,9 @@ import { useSets } from '~/features/catalog/queries/useSets'
 
 import CatalogSearch from '~/features/catalog/components/CatalogSearch.vue'
 import CatalogSetCard from '~/features/catalog/components/CatalogSetCard.vue'
-import AppSelect from '~/components/ui/inputs/AppSelect.vue'
+import AppSimpleSelect from '~/components/ui/inputs/AppSimpleSelect.vue'
+import CatalogSort from '~/features/catalog/components/CatalogSort.vue'
+import CatalogCategoriesSelect from '~/features/catalog/components/CatalogCategoriesSelect.vue'
 
 definePageMeta({
   layout: 'dashboard',
@@ -89,27 +91,16 @@ const sourcesOptions = [
           <CatalogSearch v-model="filters.q" />
 
           <div class="promo-selects-row">
-            <AppSelect
+            <AppSimpleSelect
               v-model="filters.source"
               label="Источник"
               :items="sourcesOptions"
             />
 
-            <!--            <SimpleSelect-->
-            <!--              label="Источник"-->
-            <!--              options="{SOURCE_MODES}"-->
-            <!--              value="{sourceFilter}"-->
-            <!--              onChange="{handleSourceFilter}"-->
-            <!--            />-->
-
-            <!--            <SortDropdown sort="{sortFilter}" onSort="{setSort}" />-->
+            <CatalogSort v-model="filters.sort" />
           </div>
 
-          <!--          <FilterSelect-->
-          <!--            items="{CATEGORIES}"-->
-          <!--            value="{cat}"-->
-          <!--            placeholder="Категории"-->
-          <!--          />-->
+          <CatalogCategoriesSelect v-model="filters.category" />
 
           <div v-if="hasFilters" class="filter-summary">
             <span>{{ setItems.length }} {{ noun(setItems.length) }}</span>
