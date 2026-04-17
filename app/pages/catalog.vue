@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import { useSets } from '~/features/catalog/queries/useSets'
 
-import AppPageHeader from '~/components/layout/AppPageHeader.vue'
-
-import CatalogCategories from '~/features/catalog/components/CatalogCategories.vue'
 import CatalogSearch from '~/features/catalog/components/CatalogSearch.vue'
-import CatalogFilterChips from '~/features/catalog/components/CatalogFilterChips.vue'
 import CatalogSetCard from '~/features/catalog/components/CatalogSetCard.vue'
-import AppEmpty from '~/components/layout/AppEmpty.vue'
+import AppSelect from '~/components/ui/inputs/AppSelect.vue'
 
 definePageMeta({
   layout: 'dashboard',
@@ -36,61 +32,107 @@ const { data, isLoading } = useSets(filters)
 const setItems = computed(() => {
   return data.value ? data.value.data : []
 })
+
+const hasFilters = computed(() => {
+  return (
+    filters.value.category !== 'all' ||
+    filters.value.q ||
+    filters.value.source !== 'all' ||
+    filters.value.setType !== 'all' ||
+    filters.value.sort !== 'popular'
+  )
+})
+
+const onResetFilters = () => {
+  filters.value.category = 'all'
+  filters.value.q = ''
+  filters.value.source = 'all'
+  filters.value.setType = 'all'
+  filters.value.sort = 'popular'
+}
+
+const noun = (n: number) => {
+  const m = n % 10,
+    c = n % 100
+  if (m === 1 && c !== 11) return 'набор'
+  if (m >= 2 && m <= 4 && (c < 10 || c >= 20)) return 'набора'
+  return 'наборов'
+}
+
+const sourcesOptions = [
+  { value: 'all', label: 'Все' },
+  { value: 'ss', label: 'SmartSpend' },
+  { value: 'community', label: 'Сообщество' },
+  { value: 'own', label: 'Мои' },
+  { value: 'liked', label: 'Избранное' }
+]
 </script>
 
 <template>
-  <main class="min-w-0 w-full max-w-[106rem] mx-auto">
-    <div class="pt-64 pb-80 px-16 md:p-32 grid grid-cols-1 gap-36">
-      <div class="flex flex-col gap-16 pb-4">
-        <AppPageHeader
-          title="Каталог наборов"
-          subTitle="Готовые наборы товаров от SmartSpend и сообщества"
-        />
-
+  <main class="catalog-main">
+    <div class="catalog-header">
+      <div class="catalog-page-header">
         <div>
           <div
-            class="sticky border-b-1 px-16 900:px-32 -mx-16 900:-mx-32 border-border pb-12 top-12 z-20"
+            class="page-title"
+            :style="{ display: 'flex', alignItems: 'center', gap: '10px' }"
           >
-            <div>
-              <CatalogCategories v-model="filters.category" />
-
-              <CatalogSearch v-model="filters.q" />
-
-              <CatalogFilterChips
-                v-model:source="filters.source"
-                v-model:setType="filters.setType"
-                v-model:sort="filters.sort"
-              />
-
-              <div class="mt-10 text-12 text-text-3">
-                <span>{{ setItems.length }} наборов</span>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="max-h-500 -mx-16 900:-mx-32 custom-scroll overflow-y-auto"
-          >
-            <div class="pt-20 px-16 900:px-32">
-              <AppEmpty
-                v-if="!setItems.length && !isLoading"
-                title="Наборов не найдено"
-                description="Попробуйте изменить фильтры"
-              />
-
-              <div
-                v-if="setItems.length"
-                class="grid grid-cols-1 900:grid-cols-2 xl:grid-cols-3 gap-12"
-              >
-                <CatalogSetCard
-                  v-for="item in setItems"
-                  :key="item.id"
-                  :item="item"
-                />
-              </div>
-            </div>
+            Наборы
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="catalog-scroll">
+      <div id="sp-cat-filters" class="catalog-filters-bar">
+        <div class="filters-block">
+          <CatalogSearch v-model="filters.q" />
+
+          <div class="promo-selects-row">
+            <AppSelect
+              v-model="filters.source"
+              label="Источник"
+              :items="sourcesOptions"
+            />
+
+            <!--            <SimpleSelect-->
+            <!--              label="Источник"-->
+            <!--              options="{SOURCE_MODES}"-->
+            <!--              value="{sourceFilter}"-->
+            <!--              onChange="{handleSourceFilter}"-->
+            <!--            />-->
+
+            <!--            <SortDropdown sort="{sortFilter}" onSort="{setSort}" />-->
+          </div>
+
+          <!--          <FilterSelect-->
+          <!--            items="{CATEGORIES}"-->
+          <!--            value="{cat}"-->
+          <!--            placeholder="Категории"-->
+          <!--          />-->
+
+          <div v-if="hasFilters" class="filter-summary">
+            <span>{{ setItems.length }} {{ noun(setItems.length) }}</span>
+
+            <button class="reset-btn" @click="onResetFilters">Сбросить</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="sp-cat-grid" class="catalog-grid">
+        <div v-if="setItems.length === 0 && !isLoading" class="empty-state">
+          <div class="empty-state-icon">📦</div>
+          <div class="empty-state-title">Наборов не найдено</div>
+          <div class="empty-state-desc">Попробуйте изменить фильтры</div>
+        </div>
+
+        <template v-else>
+          <CatalogSetCard
+            v-for="item in setItems"
+            :key="item.id"
+            :item="item"
+          />
+        </template>
       </div>
     </div>
   </main>

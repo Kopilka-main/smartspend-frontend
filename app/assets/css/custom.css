@@ -1,8 +1,0 @@
-/* Дополнительные стили поверх Tailwind */
-html {
-    font-size: 10px !important;
-}
-
-* {
-    font-family: 'Geist', sans-serif;
-}

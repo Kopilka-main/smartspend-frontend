@@ -1,5 +1,3 @@
-import tailwindcss from '@tailwindcss/vite'
-
 export default defineNuxtConfig({
   runtimeConfig: {
     public: {
@@ -23,7 +21,6 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@pinia/colada-nuxt',
     '@vueuse/nuxt',
-    '@nuxt/fonts',
     '@nuxt/eslint',
     '@nuxt/icon',
     '@sidebase/nuxt-auth'
@@ -80,31 +77,5 @@ export default defineNuxtConfig({
     ]
   },
 
-  fonts: {
-    families: [
-      {
-        name: 'Geist',
-        provider: 'google',
-        weights: ['300', '400', '500', '600', '700'],
-        display: 'swap'
-      },
-      {
-        name: 'Geist Mono',
-        provider: 'google',
-        weights: ['400', '500'],
-        display: 'swap'
-      }
-    ]
-  },
-
-  css: [
-    'vue-final-modal/style.css',
-
-    './app/assets/css/main.css',
-    './app/assets/css/custom.css'
-  ],
-
-  vite: {
-    plugins: [tailwindcss()]
-  }
+  css: ['vue-final-modal/style.css', './app/assets/css/main.css']
 })

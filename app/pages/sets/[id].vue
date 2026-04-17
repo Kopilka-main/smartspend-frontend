@@ -5,7 +5,6 @@ import SetDetailsCard from '~/features/sets/components/SetDetailsCard.vue'
 import AppBreadcrumbs from '~/components/ui/AppBreadcrumbs.vue'
 import SetCommentsCard from '~/features/sets/components/comments/SetCommentsCard.vue'
 import SetSourceCard from '~/features/sets/components/SetSourceCard.vue'
-import SetItemsCard from '~/features/sets/components/items/SetItemsCard.vue'
 import SetAuthorGuides from '~/features/sets/components/SetAuthorGuides.vue'
 import SetCommunityGuides from '~/features/sets/components/SetCommunityGuides.vue'
 
@@ -45,8 +44,6 @@ useHead({
         <AppBreadcrumbs :items="breadcrumbs" />
 
         <SetDetailsCard v-if="details" :item="details" />
-
-        <SetItemsCard v-if="details" :item="details" />
 
         <SetSourceCard v-if="details" :item="details" />
 

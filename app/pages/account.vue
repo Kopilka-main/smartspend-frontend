@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { useMySets } from '~/features/account/queries/useMySets'
 
-import AccountEditForm from '~/features/account/components/AccountEditForm.vue'
 import AccountInfoCard from '~/features/account/components/AccountInfoCard.vue'
-import AccountPostsSection from '~/features/account/components/posts/AccountPostsSection.vue'
 import AccountSetsSection from '~/features/account/components/sets/AccountSetsSection.vue'
-import AccountSubscriptionsSection from '~/features/account/components/subscriptions/AccountSubscriptionsSection.vue'
+import AccountArticlesSection from '~/features/account/components/articles/AccountArticlesSection.vue'
 
 definePageMeta({
   layout: 'dashboard',
@@ -19,67 +17,89 @@ useHead({
   title: 'Аккаунт'
 })
 
-const { data } = useMySets()
+const { data: mySetsData } = useMySets()
 
 const mySets = computed(() => {
-  return data.value ? data.value.data : []
+  return mySetsData.value ? mySetsData.value.data : []
 })
 
-const isEditAccount = ref(false)
+const activeTab = ref('sets')
 
-const activeTab = ref('posts')
-
-const currentTabComponent = computed(() => {
-  if (activeTab.value === 'posts') {
-    return AccountPostsSection
+const items = computed(() => {
+  switch (activeTab.value) {
+    case 'sets':
+      return mySets.value
+    case 'articles':
+      return []
+    default:
+      return []
   }
+})
 
-  if (activeTab.value === 'sets') {
-    return AccountSetsSection
-  }
+const tabs = computed(() => {
+  return [
+    {
+      id: 'articles',
+      label: 'Статьи'
+    },
+    {
+      id: 'sets',
+      label:
+        mySets.value.length > 0 ? `Наборы · ${mySets.value.length}` : 'Наборы'
+    },
+    {
+      id: 'whispers',
+      label: 'Промо'
+    },
+    {
+      id: 'subs',
+      label: 'Мои подписки'
+    },
+    {
+      id: 'companies',
+      label: 'Мои компании'
+    }
+  ]
+})
 
-  if (activeTab.value === 'subscriptions') {
-    return AccountSubscriptionsSection
+const activeTabComponent = computed(() => {
+  switch (activeTab.value) {
+    case 'sets':
+      return AccountSetsSection
+    case 'articles':
+      return AccountArticlesSection
+    default:
+      return null
   }
 })
 </script>
 
 <template>
-  <main class="min-w-0 w-full max-w-860 mx-auto">
-    <div class="pt-64 pb-80 px-16 md:p-32 grid grid-cols-1 gap-36">
-      <AccountEditForm v-if="isEditAccount" @close="isEditAccount = false" />
-      <AccountInfoCard v-else @edit="isEditAccount = true" />
-
-      <div id="sp-acc-tabs" class="flex gap-4 border-b border-border pb-0">
-        <button
-          type="button"
-          class="-mb-px border-0 border-b-2 border-transparent bg-transparent px-18 py-10 text-14 font-medium tracking-[-0.01em] text-text-2 transition-all duration-150 hover:text-text"
-          :class="{ 'text-text! border-b-text': activeTab === 'posts' }"
-          @click="activeTab = 'posts'"
+  <main class="account-main">
+    <div class="inv-page-header">
+      <div>
+        <div
+          class="page-title"
+          :style="{ display: 'flex', alignItems: 'center', gap: 10 }"
         >
-          Статьи · 0
-        </button>
-
-        <button
-          type="button"
-          class="-mb-px border-0 border-b-2 border-transparent bg-transparent px-18 py-10 text-14 font-medium tracking-[-0.01em] text-text-2 transition-all duration-150 hover:text-text"
-          :class="{ 'text-text! border-b-text': activeTab === 'sets' }"
-          @click="activeTab = 'sets'"
-        >
-          Наборы · {{ mySets.length }}
-        </button>
-
-        <button
-          type="button"
-          class="-mb-px border-0 border-b-2 border-transparent bg-transparent px-18 py-10 text-14 font-medium tracking-[-0.01em] text-text-2 transition-all duration-150 hover:text-text"
-          :class="{ 'text-text! border-b-text': activeTab === 'subscriptions' }"
-          @click="activeTab = 'subscriptions'"
-        >
-          Подписки · 0
-        </button>
+          Аккаунт
+        </div>
       </div>
-
-      <component :is="currentTabComponent" :items="mySets" />
     </div>
+
+    <AccountInfoCard />
+
+    <div id="sp-acc-tabs" class="acc-tabs">
+      <button
+        v-for="tab in tabs"
+        :key="tab.id"
+        :class="`acc-tab${activeTab === tab.id ? ' active' : ''}`"
+        @click="activeTab = tab.id"
+      >
+        {{ tab.label }}
+      </button>
+    </div>
+
+    <component :is="activeTabComponent" :items="items" />
   </main>
 </template>

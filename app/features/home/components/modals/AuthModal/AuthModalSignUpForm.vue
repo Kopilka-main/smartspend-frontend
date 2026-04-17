@@ -22,6 +22,7 @@ const [password, passwordProps] = defineField('password')
 
 const isLoading = ref(false)
 const errorMessage = ref('')
+const isPasswordVisible = ref(false)
 
 const { signUp } = useAuth()
 
@@ -52,108 +53,115 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <form class="flex flex-col gap-12" @submit="onSubmit">
-    <div class="flex flex-col gap-[4px]">
-      <label
-        class="text-11 font-semibold uppercase tracking-[0.02em] text-text-2"
-      >
-        Имя
-      </label>
+  <form class="auth-form" @submit="onSubmit">
+    <div class="auth-field">
+      <label class="auth-label">Имя</label>
 
       <input
-        v-model="name"
-        class="w-full px-12 h-38 rounded-10 border border-border bg-surface-2 text-text text-14 outline-hidden transition-colors duration-150 box-border focus:border-accent-green focus:bg-surface"
-        placeholder="Как вас зовут?"
-        :class="{ 'border-red-400!': meta.touched && errors.name }"
-        autocomplete="name"
+        :class="`auth-input${errors.name && meta.touched ? ' error' : ''}`"
         type="text"
-        v-bind="nameProps"
+        placeholder="Как вас зовут?"
       />
+
+      <div v-if="errors.name && meta.touched" class="auth-field-error">
+        {{ errors.name }}
+      </div>
     </div>
-    <div class="flex flex-col gap-[4px]">
-      <label
-        class="text-11 font-semibold uppercase tracking-[0.02em] text-text-2"
-      >
-        Email
-      </label>
+
+    <div class="auth-field">
+      <label class="auth-label">Email</label>
 
       <input
         v-model="email"
-        class="w-full px-12 h-38 rounded-10 border border-border bg-surface-2 text-text text-14 outline-hidden transition-colors duration-150 box-border focus:border-accent-green focus:bg-surface"
-        :class="{ 'border-red-400!': meta.touched && errors.email }"
-        placeholder="your@email.com"
-        autocomplete="email"
+        :class="`auth-input${errors.email && meta.touched ? ' error' : ''}`"
         type="email"
-        v-bind="emailProps"
+        placeholder="your@email.com"
       />
-    </div>
-    <div class="flex flex-col gap-[4px]">
-      <label
-        class="text-11 font-semibold uppercase tracking-[0.02em] text-text-2"
-      >
-        Пароль
-      </label>
 
-      <div class="relative">
+      <div v-if="errors.email && meta.touched" class="auth-field-error">
+        {{ errors.email }}
+      </div>
+    </div>
+
+    <div class="auth-field">
+      <label class="auth-label">Пароль</label>
+
+      <div class="auth-pass-wrap">
         <input
           v-model="password"
-          class="w-full pl-12 pr-40 h-38 rounded-10 border border-border bg-surface-2 text-text text-14 outline-hidden transition-colors duration-150 box-border focus:border-accent-green focus:bg-surface"
-          :class="{ 'border-red-400!': meta.touched && errors.password }"
+          :class="`auth-input${errors.password && meta.touched ? ' error' : ''}`"
+          :type="isPasswordVisible ? 'text' : 'password'"
           placeholder="Минимум 8 символов"
-          autocomplete="new-password"
-          type="password"
-          v-bind="passwordProps"
         />
+
+        <div v-if="errors.password && meta.touched" class="auth-field-error">
+          {{ errors.password }}
+        </div>
 
         <button
           type="button"
-          tabindex="-1"
-          class="absolute right-10 top-1/2 -translate-y-1/2 bg-transparent border-0 cursor-pointer text-text-3 flex items-center p-4 hover:text-text-2"
+          class="auth-pass-toggle"
+          @click="isPasswordVisible = !isPasswordVisible"
         >
           <svg
+            v-if="isPasswordVisible"
             width="15"
             height="15"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"
+            />
+            <path
+              d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"
+            />
+            <line x1="1" y1="1" x2="23" y2="23" />
+          </svg>
+          <svg
+            v-else
+            width="15"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
           </svg>
         </button>
       </div>
     </div>
 
-    <button
-      type="submit"
-      :disabled="isLoading"
-      class="flex mt-6 items-center justify-center gap-8 w-full px-20 h-42 rounded-10 bg-accent-green text-white text-14 font-semibold cursor-pointer border-0 transition-opacity duration-150 hover:opacity-90 active:scale-[0.99] disabled:opacity-60 disabled:cursor-default"
-    >
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path
-          d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
-        ></path>
-        <polyline points="22,6 12,13 2,6"></polyline>
-      </svg>
-      Зарегистрироваться
-    </button>
+    <button type="submit" :class="`auth-submit${isLoading ? ' loading' : ''}`">
+      <span v-if="isLoading" class="auth-spinner" />
 
-    <p v-if="errorMessage" class="text-14 text-center text-accent-red-text">
-      {{ errorMessage }}
-    </p>
+      <template v-else>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path
+            d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+          />
+          <polyline points="22,6 12,13 2,6" />
+        </svg>
+
+        Зарегистрироваться
+      </template>
+    </button>
   </form>
 </template>

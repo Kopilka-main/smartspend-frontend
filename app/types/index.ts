@@ -10,6 +10,7 @@ export type User = {
   displayName: string
   email: string
   username: string
+  followersCount: number
   finance: {
     income: number
     housing: number
@@ -30,6 +31,7 @@ export type CustomSet = {
   id: string
   source: string
   categoryId: string
+  categoryName: string
   setType: string
   color: string
   title: string
@@ -40,6 +42,7 @@ export type CustomSet = {
   isPrivate: boolean
   itemsCount: number
   itemNames: string[]
+  likesCount: number
   author: {
     id: string
     displayName: string
@@ -47,7 +50,9 @@ export type CustomSet = {
     color: string
     avatarUrl: string
   }
+  items: SetItem[]
   createdAt: Date
+  commentsCount: number
 }
 
 export type CustomSetDetails = {
@@ -172,4 +177,41 @@ export type FeedSet = {
   usersCount: number
   viewsCount: number | null
   commentsCount: number | null
+}
+
+export type ArticleBlock = {
+  html: any
+  id: number
+  items: any
+  position: number
+  text: string
+  title: any
+  type: string
+}
+
+export type ArticleDetails = {
+  id: string
+  title: string
+  articleType: string
+  categoryId: string
+  preview: string
+  publishedAt: string
+  status: string
+  viewsCount: number
+  likesCount: number
+  dislikesCount: number
+  commentsCount: number
+  linkedSetId: string
+  linkedSetTitle: string
+  blocks: ArticleBlock[]
+  author: {
+    id: string
+    displayName: string
+    username: string
+    initials: string
+    color: string
+    avatarUrl: string
+  }
+  createdAt: Date
+  updatedAt: Date
 }

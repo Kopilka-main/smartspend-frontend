@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import AppSidebarThemeToggle from '~/components/layout/sidebar/AppSidebarThemeToggle.vue'
-import AppSidebarUserMenu from '~/components/layout/sidebar/AppSidebarUserMenu.vue'
+import { useCurrentUser } from '~/composables/useCurrentUser'
 
 type MenuItem = {
   href: string
   icon: string
   label: string
-  hasDivider?: boolean
 }
 
 const items: MenuItem[] = [
@@ -26,11 +24,18 @@ const items: MenuItem[] = [
     label: 'Лента'
   },
   {
+    href: '/promo',
+    icon: 'promo',
+    label: 'Промо'
+  },
+  {
     href: '/catalog',
     icon: 'catalog',
-    label: 'Каталог наборов',
-    hasDivider: true
-  },
+    label: 'Наборы'
+  }
+]
+
+const bottomItems: MenuItem[] = [
   {
     href: '/notifications',
     icon: 'notifications',
@@ -42,121 +47,107 @@ const items: MenuItem[] = [
     label: 'Настройки'
   }
 ]
+
+const router = useRouter()
+const { currentUser } = useCurrentUser()
+
+const switchToAccount = () => {
+  router.push('/account')
+}
+
+const onAccountMouseEnter = (event: MouseEvent) => {
+  if (event.currentTarget) {
+    ;(event.currentTarget as HTMLDivElement).style.background =
+      'var(--surface-2)'
+  }
+}
+
+const onAccountMouseLeave = (event: MouseEvent) => {
+  if (event.currentTarget) {
+    ;(event.currentTarget as HTMLDivElement).style.background = ''
+  }
+}
 </script>
 
 <template>
-  <aside
-    class="sticky top-0 z-100 hidden md:flex h-screen w-full flex-col bg-surface py-24 overflow-hidden shadow-[1px_0_0_rgba(0,0,0,0.07)]"
-  >
-    <div
-      class="logo flex items-center gap-10 px-16 pt-4 pb-24 text-17 font-bold tracking-[-0.02em] whitespace-nowrap overflow-hidden"
-    >
-      <div
-        class="logo-mark w-30 h-30 rounded-8 bg-text flex items-center justify-center shrink-0"
-      >
-        <svg
-          viewBox="0 0 16 16"
-          fill="none"
-          class="w-16 h-16"
-          aria-hidden="true"
-        >
+  <aside>
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 80 80" fill="none" width="30" height="30">
+          <rect width="80" height="80" rx="18" fill="var(--logo-bg)" />
           <rect
-            x="2"
-            y="2"
-            width="5"
-            height="5"
-            rx="1.5"
-            fill="white"
-            opacity="0.9"
-          ></rect>
-          <rect
-            x="9"
-            y="2"
-            width="5"
-            height="5"
-            rx="1.5"
-            fill="white"
-            opacity="0.5"
-          ></rect>
-          <rect
-            x="2"
-            y="9"
-            width="5"
-            height="5"
-            rx="1.5"
-            fill="white"
-            opacity="0.5"
-          ></rect>
-          <rect
-            x="9"
-            y="9"
-            width="5"
-            height="5"
-            rx="1.5"
-            fill="white"
-            opacity="0.9"
-          ></rect>
+            x="14"
+            y="14"
+            width="52"
+            height="52"
+            rx="10"
+            fill="var(--logo-fg)"
+          />
         </svg>
       </div>
 
-      <span class="logo-text flex-1 whitespace-nowrap overflow-hidden">
-        SmartSpend
-      </span>
+      <span class="logo-text">SmartSpend</span>
 
-      <button
-        type="button"
-        title="Свернуть"
-        class="sidebar-toggle p-4 rounded-6 text-text-3 hover:text-text hover:bg-surface-2 transition-colors flex items-center justify-center shrink-0 bg-transparent border-0 cursor-pointer"
-      >
+      <button class="sidebar-toggle" title="Свернуть">
         <svg
           width="16"
           height="16"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         >
-          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-          <path d="M9 3v18"></path>
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <path d="M9 3v18" />
         </svg>
       </button>
     </div>
 
-    <nav
-      class="flex-1 flex flex-col gap-1 px-12 py-7 overflow-y-auto overflow-x-hidden"
-    >
-      <template v-for="item in items" :key="item.label">
-        <NuxtLink
-          class="group flex items-center gap-10 px-12 py-7 rounded-10 text-14 text-text-2 font-normal tracking-[-0.01em] cursor-pointer no-underline whitespace-nowrap overflow-hidden transition-all duration-150 hover:bg-surface-2 hover:text-text"
-          activeClass="bg-surface-2 text-text"
-          :to="item.href"
-        >
-          <Icon
-            :name="`icons:${item.icon}`"
-            class="w-16 h-16 shrink-0 opacity-80 transition-opacity group-hover:opacity-80"
-          />
+    <nav>
+      <NuxtLink
+        v-for="item in items"
+        :key="item.href"
+        :to="item.href"
+        class="nav-item"
+        active-class="active"
+      >
+        <Icon :name="`icons:${item.icon}`" class="nav-icon" />
 
-          <span class="nav-label whitespace-nowrap overflow-hidden">
-            {{ item.label }}
-          </span>
-        </NuxtLink>
+        <span class="nav-label">{{ item.label }}</span>
+      </NuxtLink>
 
-        <div
-          v-if="item.hasDivider"
-          class="nav-divider h-1 bg-border my-6 mx-12"
-        />
-      </template>
+      <div class="nav-divider" />
+
+      <NuxtLink
+        v-for="item in bottomItems"
+        :key="item.href"
+        :to="item.href"
+        class="nav-item"
+        active-class="active"
+      >
+        <Icon :name="`icons:${item.icon}`" class="nav-icon" />
+
+        <span class="nav-label">{{ item.label }}</span>
+      </NuxtLink>
     </nav>
 
-    <div
-      class="sidebar-bottom pt-12 px-12 pb-0 border-t border-border flex flex-col gap-4"
-    >
-      <AppSidebarThemeToggle />
+    <div class="sidebar-bottom">
+      <button class="theme-toggle">
+        <Icon name="icons:sun" class="nav-icon" />
 
-      <AppSidebarUserMenu />
+        <span class="nav-label theme-label">Тёмная тема</span>
+      </button>
+
+      <div class="sidebar-user" @click="switchToAccount">
+        <div class="avatar-sm">{{ currentUser?.initials }}</div>
+
+        <div class="nav-label-block">
+          <div class="sidebar-user-name">{{ currentUser?.displayName }}</div>
+          <div class="sidebar-user-plan">Базовый план</div>
+        </div>
+      </div>
     </div>
   </aside>
 </template>

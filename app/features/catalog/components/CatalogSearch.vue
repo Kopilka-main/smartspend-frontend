@@ -12,29 +12,41 @@ watchDebounced(
 </script>
 
 <template>
-  <div class="mt-10">
-    <div class="relative max-w-340">
+  <div class="catalog-search-wrap">
+    <svg
+      class="catalog-search-icon"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="M21 21l-4.35-4.35" />
+    </svg>
+
+    <input
+      v-model="query"
+      class="catalog-search-input"
+      type="text"
+      placeholder="Поиск по составу набора..."
+    />
+
+    <button v-if="query" class="catalog-search-clear" @click="query = ''">
       <svg
-        class="pointer-events-none absolute left-10 top-1/2 h-14 w-14 -translate-y-1/2 text-text-3"
-        width="14"
-        height="14"
+        width="12"
+        height="12"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2.5"
+        strokeLinecap="round"
       >
-        <circle cx="11" cy="11" r="8"></circle>
-        <path d="M21 21l-4.35-4.35"></path>
+        <path d="M18 6L6 18M6 6l12 12" />
       </svg>
-
-      <input
-        v-model="query"
-        type="text"
-        placeholder="Поиск по составу набора..."
-        class="h-32 w-full rounded-10 border border-border bg-surface pl-34 pr-12 text-12 text-text outline-hidden placeholder:text-text-3 focus:border-accent-green"
-      />
-    </div>
+    </button>
   </div>
 </template>
