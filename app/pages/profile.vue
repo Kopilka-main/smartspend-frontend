@@ -20,7 +20,7 @@ const { currentUser } = useCurrentUser()
 
 <template>
   <main class="profile-main">
-    <div class="entry-header" id="sp-tiles">
+    <div id="sp-tiles" class="entry-header">
       <div class="entry-greeting">
         <div
           class="entry-title"

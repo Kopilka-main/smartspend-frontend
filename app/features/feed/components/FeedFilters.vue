@@ -139,8 +139,8 @@ const modeModel = defineModel<string>('mode', { default: 'unread' })
           </button>
 
           <div
-            ref="dropdownRef"
             v-if="isSortDropdownVisible"
+            ref="dropdownRef"
             class="absolute feed-sort-dropdown-panel rounded-10 border border-border bg-surface p-8 shadow-app-md"
           >
             <div>

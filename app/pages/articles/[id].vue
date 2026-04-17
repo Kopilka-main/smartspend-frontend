@@ -80,11 +80,7 @@ const onRemoveNote = (note: any) => {}
 
     <div class="content-card">
       <div class="content-body">
-        <component
-          :is="block.type"
-          v-for="block in blocks"
-          :key="block.id"
-        >
+        <component :is="block.type" v-for="block in blocks" :key="block.id">
           <span v-html="block.text" />
         </component>
       </div>

@@ -23,7 +23,7 @@ useHead({
       <div class="flex flex-col gap-16 pb-4">
         <AppPageHeader
           title="Уведомления"
-          subTitle="Новости, ответы и напоминания"
+          sub-title="Новости, ответы и напоминания"
         />
 
         <!-- Tabs -->

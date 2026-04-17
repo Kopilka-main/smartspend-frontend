@@ -26,7 +26,7 @@ useHead({
     <div class="pt-64 pb-80 px-16 md:p-32 grid grid-cols-1 gap-36">
       <AppPageHeader
         title="Настройки"
-        subTitle="Управление приложением и аккаунтом"
+        sub-title="Управление приложением и аккаунтом"
       />
 
       <SettingsThemeSection />

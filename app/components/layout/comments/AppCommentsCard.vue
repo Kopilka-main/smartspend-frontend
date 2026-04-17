@@ -18,14 +18,18 @@
     </div>
 
     <div class="comments-list">
-      <div v-for="(comment, index) in comments" :key="index" class="comment-wrap">
+      <div
+        v-for="(comment, index) in comments"
+        :key="index"
+        class="comment-wrap"
+      >
         <div class="comment-item">
           <CommentItem
             name="{c.name}"
             ini="{c.ini}"
             navigate="{navigate}"
-            avatarClass="c-avatar"
-            nameClass="c-name"
+            avatar-class="c-avatar"
+            name-class="c-name"
             date="{c.date}"
           >
             <div class="c-text">{c.text}</div>

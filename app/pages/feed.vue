@@ -58,7 +58,7 @@ const getItemComponent = (item: FeedSetType | FeedArticleType) => {
           <div class="">
             <FeedFilters
               v-model:category="filters.categoryId"
-              v-model:articleType="filters.articleType"
+              v-model:article-type="filters.articleType"
               v-model:sort="filters.sort"
               v-model:mode="filters.mode"
             />
@@ -87,9 +87,9 @@ const getItemComponent = (item: FeedSetType | FeedArticleType) => {
                     />
 
                     <component
-                      v-else
-                      v-for="item in items"
                       :is="getItemComponent(item)"
+                      v-for="item in items"
+                      v-else
                       :key="item.id"
                       :item="item"
                     />

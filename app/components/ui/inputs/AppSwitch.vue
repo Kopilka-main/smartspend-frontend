@@ -6,7 +6,7 @@ const model = defineModel<boolean>({ default: false })
   <label
     class="relative inline-flex h-24 w-42 shrink-0 cursor-pointer items-center"
   >
-    <input type="checkbox" class="peer sr-only" v-model="model" />
+    <input v-model="model" type="checkbox" class="peer sr-only" />
 
     <span
       class="absolute inset-0 rounded-full border border-border bg-surface-2 transition-colors peer-checked:border-accent-green peer-checked:bg-accent-green"
