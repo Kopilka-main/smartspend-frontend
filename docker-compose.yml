@@ -2,14 +2,14 @@ services:
   frontend:
     image: smartspend-frontend:latest
     container_name: smartspend-frontend
-    env_file: ".env"
+    env_file: '.env'
     build:
       context: .
       dockerfile: Dockerfile
       args:
         - BUILDKIT_INLINE_CACHE=1
     ports:
-      - "${APP_PORT:?error}:3000"
+      - '${APP_PORT:?error}:3000'
     environment:
       - HOST=0.0.0.0
       - NODE_ENV=development
@@ -20,8 +20,8 @@ services:
     healthcheck:
       test:
         [
-          "CMD-SHELL",
-          "wget -qO- --timeout=3 http://127.0.0.1:3000/ >/dev/null 2>&1 || exit 1"
+          'CMD-SHELL',
+          'wget -qO- --timeout=3 http://127.0.0.1:3000/ >/dev/null 2>&1 || exit 1'
         ]
       interval: 15s
       timeout: 5s
@@ -30,8 +30,8 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "5"
+        max-size: '10m'
+        max-file: '5'
 
 volumes:
   frontend_node_modules:
