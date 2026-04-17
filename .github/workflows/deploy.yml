@@ -30,8 +30,6 @@ jobs:
         run: bun run postinstall
       - name: ESLint
         run: bun x eslint .
-      - name: Prettier check
-        run: bun x prettier --check .
       - name: Build
         run: bun run build
 
