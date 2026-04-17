@@ -1,19 +1,48 @@
 <script setup lang="ts">
-const selectedItems = ref<any[]>([])
-const selectableItems = ref<any[]>([])
+import { useSetCategories } from '~/queries/useSetCategories'
+
+import type { SetCategory } from '~/types'
+
+const { data: categoriesData } = useSetCategories()
+
+const categories = computed(() => {
+  return categoriesData.value ? categoriesData.value.data : []
+})
+
+const modelValue = defineModel<SetCategory[]>({ default: () => [] })
+
+const selectableCategories = computed(() => {
+  return categories.value.filter(
+    (category) => !modelValue.value.find((c) => c.id === category.id)
+  )
+})
 
 const isOpened = ref(false)
 
-const isSelectedItem = (item: any) => {
-  return false
+const isSelectedCategory = (category: SetCategory) => {
+  return !!modelValue.value.find((c) => c.id === category.id)
 }
+
+const onSelectCategory = (category: SetCategory) => {
+  modelValue.value.push(category)
+}
+
+const dropdownElem = useTemplateRef('dropdownElem')
+
+onClickOutside(dropdownElem, () => {
+  isOpened.value = false
+})
 </script>
 
 <template>
   <div class="fsel-wrap">
     <div class="fsel-bar">
-      <button v-for="item in selectedItems" :key="item.value" class="fsel-chip">
-        {{ item.label }}
+      <button
+        v-for="category in modelValue"
+        :key="category.id"
+        class="fsel-chip"
+      >
+        {{ category.name }}
 
         <svg
           width="9"
@@ -29,8 +58,11 @@ const isSelectedItem = (item: any) => {
         </svg>
       </button>
 
-      <button :class="`fsel-btn${isOpened ? ' open' : ''}`">
-        <span v-if="selectedItems.length === 0">Категории</span>
+      <button
+        :class="`fsel-btn${isOpened ? ' open' : ''}`"
+        @click="isOpened = !isOpened"
+      >
+        <span v-if="modelValue.length === 0">Категории</span>
 
         <svg
           class="fsel-arrow"
@@ -48,20 +80,25 @@ const isSelectedItem = (item: any) => {
       </button>
     </div>
 
-    <div v-if="isOpened" class="fsel-panel">
-      <button v-if="selectedItems.length" class="fsel-clear">
+    <div v-if="isOpened" ref="dropdownElem" class="fsel-panel">
+      <button
+        v-if="modelValue.length"
+        class="fsel-clear"
+        @click="modelValue = []"
+      >
         Сбросить выбор
       </button>
 
       <button
-        v-for="item in selectableItems"
-        :key="item.value"
-        :class="`fsel-option${isSelectedItem(item) ? ' active' : ''}`"
+        v-for="category in selectableCategories"
+        :key="category.id"
+        :class="`fsel-option${isSelectedCategory(category) ? ' active' : ''}`"
+        @click="onSelectCategory(category)"
       >
-        {{ item.label }}
+        {{ category.name }}
 
         <svg
-          v-if="isSelectedItem(item)"
+          v-if="isSelectedCategory(category)"
           class="fsel-check"
           width="13"
           height="13"

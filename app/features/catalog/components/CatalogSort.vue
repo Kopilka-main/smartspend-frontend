@@ -1,9 +1,16 @@
 <script setup lang="ts">
+import { onClickOutside } from '@vueuse/core'
+
+type OptionItem = {
+  label: string
+  value: string
+}
+
 const modelValue = defineModel<string>({ default: 'popular' })
 
 const isOpened = ref(false)
 
-const options = [
+const options: OptionItem[] = [
   {
     label: 'По популярности',
     value: 'popular'
@@ -19,6 +26,17 @@ const selectedOptionLabel = computed(() => {
     options.find((option) => option.value === modelValue.value)?.label || ''
   )
 })
+
+const onSelectOption = (option: OptionItem) => {
+  modelValue.value = option.value
+  isOpened.value = false
+}
+
+const dropdownElem = useTemplateRef('dropdownElem')
+
+onClickOutside(dropdownElem, () => {
+  isOpened.value = false
+})
 </script>
 
 <template>
@@ -27,6 +45,7 @@ const selectedOptionLabel = computed(() => {
 
     <button
       :class="`sort-btn${isOpened ? ' open' : ''}${modelValue !== 'popular' ? ' active' : ''}`"
+      @click="isOpened = !isOpened"
     >
       <span>{{ selectedOptionLabel || 'По популярности' }}</span>
 
@@ -45,11 +64,12 @@ const selectedOptionLabel = computed(() => {
       </svg>
     </button>
 
-    <div :class="`sort-dropdown${isOpened ? ' open' : ''}`">
+    <div ref="dropdownElem" :class="`sort-dropdown${isOpened ? ' open' : ''}`">
       <div
         v-for="option in options"
         :key="option.value"
         :class="`sort-option${modelValue === option.value ? ' active' : ''}`"
+        @click="onSelectOption(option)"
       >
         {{ option.label }}
 

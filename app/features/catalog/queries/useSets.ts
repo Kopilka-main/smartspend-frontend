@@ -7,7 +7,7 @@ export const useSets = (filters: Ref<any>) => {
   return useQuery({
     key: () => [
       'sets',
-      filters.value.category,
+      filters.value.categories.join(','),
       filters.value.q,
       filters.value.source,
       filters.value.setType,
@@ -15,7 +15,7 @@ export const useSets = (filters: Ref<any>) => {
     ],
     query: async () => {
       return await $api<{ data: CustomSet[] }>(
-        `/catalog?category_id=${filters.value.category}&q=${filters.value.q}&source=${filters.value.source}&set_type=${filters.value.setType}&sort=${filters.value.sort}`,
+        `/catalog?q=${filters.value.q}&source=${filters.value.source}&set_type=${filters.value.setType}&sort=${filters.value.sort}`,
         { method: 'GET' }
       )
     }

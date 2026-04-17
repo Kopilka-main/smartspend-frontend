@@ -22,7 +22,7 @@ useHead({
 const route = useRoute()
 
 const filters = ref({
-  category: 'all',
+  categories: [],
   q: '',
   source: route.query.source ? (route.query.source as string) : 'all',
   setType: 'all',
@@ -37,7 +37,6 @@ const setItems = computed(() => {
 
 const hasFilters = computed(() => {
   return (
-    filters.value.category !== 'all' ||
     filters.value.q ||
     filters.value.source !== 'all' ||
     filters.value.setType !== 'all' ||
@@ -46,7 +45,7 @@ const hasFilters = computed(() => {
 })
 
 const onResetFilters = () => {
-  filters.value.category = 'all'
+  filters.value.categories = []
   filters.value.q = ''
   filters.value.source = 'all'
   filters.value.setType = 'all'
@@ -100,7 +99,7 @@ const sourcesOptions = [
             <CatalogSort v-model="filters.sort" />
           </div>
 
-          <CatalogCategoriesSelect v-model="filters.category" />
+          <CatalogCategoriesSelect v-model="filters.categories" />
 
           <div v-if="hasFilters" class="filter-summary">
             <span>{{ setItems.length }} {{ noun(setItems.length) }}</span>
