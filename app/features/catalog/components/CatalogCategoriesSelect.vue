@@ -27,6 +27,10 @@ const onSelectCategory = (category: SetCategory) => {
   modelValue.value.push(category)
 }
 
+const onRemoveCategory = (category: SetCategory) => {
+  modelValue.value = modelValue.value.filter((c) => c.id !== category.id)
+}
+
 const dropdownElem = useTemplateRef('dropdownElem')
 
 onClickOutside(dropdownElem, () => {
@@ -41,6 +45,7 @@ onClickOutside(dropdownElem, () => {
         v-for="category in modelValue"
         :key="category.id"
         class="fsel-chip"
+        @click="onRemoveCategory(category)"
       >
         {{ category.name }}
 

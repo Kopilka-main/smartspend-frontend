@@ -37,6 +37,7 @@ const setItems = computed(() => {
 
 const hasFilters = computed(() => {
   return (
+    filters.value.categories.length ||
     filters.value.q ||
     filters.value.source !== 'all' ||
     filters.value.setType !== 'all' ||

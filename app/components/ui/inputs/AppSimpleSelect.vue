@@ -1,7 +1,7 @@
 <script setup lang="ts">
 type AppSimpleSelectProps = {
   label: string
-  items: any[]
+  items: { label: string; value: string }[]
 }
 
 const props = defineProps<AppSimpleSelectProps>()
@@ -19,7 +19,7 @@ const selectedItem = computed(() => {
   return props.items.find((item) => item.value === modelValue.value)
 })
 
-const onSelectOption = (option: any) => {
+const onSelectOption = (option: { label: string; value: string }) => {
   modelValue.value = option.value
 
   isOpened.value = false
@@ -38,7 +38,9 @@ onClickOutside(dropdownElem, () => {
     >
       <span class="ssel-label">{{ label }}</span>
 
-      <span v-if="!isDefault" class="ssel-value">{{ selectedItem.label }}</span>
+      <span v-if="!isDefault" class="ssel-value">
+        {{ selectedItem?.label }}
+      </span>
 
       <svg
         class="ssel-arrow"

@@ -37,12 +37,15 @@ export type CustomSet = {
   title: string
   description: string
   amount: number
+  monthly: any
+  fullCost: any
   amountLabel: string
   usersCount: number
   isPrivate: boolean
   itemsCount: number
   itemNames: string[]
   likesCount: number
+  period: any
   author: {
     id: string
     displayName: string
@@ -69,6 +72,8 @@ export type CustomSetDetails = {
     avatarUrl: string
   } | null
   categoryId: string
+  categoryName: string
+  likesCount: number
   color: string
   createdAt: Date
   description: string
@@ -84,6 +89,7 @@ export type CustomSetDetails = {
 }
 
 export type SetItem = {
+  id: string
   name: string
   basePrice: number
   itemType: string
@@ -93,6 +99,7 @@ export type SetItem = {
   qty?: number
   unit?: string
   dailyUse?: number
+  period?: number
 }
 
 export type EnvelopeItem = {
@@ -194,6 +201,7 @@ export type ArticleDetails = {
   title: string
   articleType: string
   categoryId: string
+  categoryName: string
   preview: string
   publishedAt: string
   status: string

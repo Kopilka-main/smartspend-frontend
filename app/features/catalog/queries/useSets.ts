@@ -1,5 +1,5 @@
 import { useQuery } from '@pinia/colada'
-import type { CustomSet } from '~/types'
+import type { CustomSet, SetCategory } from '~/types'
 
 export const useSets = (filters: Ref<any>) => {
   const { $api } = useNuxtApp()
@@ -7,7 +7,7 @@ export const useSets = (filters: Ref<any>) => {
   return useQuery({
     key: () => [
       'sets',
-      filters.value.categories.join(','),
+      filters.value.categories.map((c: SetCategory) => c.id).join(','),
       filters.value.q,
       filters.value.source,
       filters.value.setType,
@@ -15,7 +15,7 @@ export const useSets = (filters: Ref<any>) => {
     ],
     query: async () => {
       return await $api<{ data: CustomSet[] }>(
-        `/catalog?q=${filters.value.q}&source=${filters.value.source}&set_type=${filters.value.setType}&sort=${filters.value.sort}`,
+        `/catalog?category_ids=${filters.value.categories.map((c: SetCategory) => c.id).join(',')}&q=${filters.value.q}&source=${filters.value.source}&set_type=${filters.value.setType}&sort=${filters.value.sort}`,
         { method: 'GET' }
       )
     }

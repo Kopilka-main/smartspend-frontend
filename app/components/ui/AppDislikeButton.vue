@@ -23,7 +23,7 @@ const onClick = () => {
 <template>
   <button
     :class="`fa-action-btn fa-action-dislike${isDisliked ? ' active' : ''}${anim ? ' dislike-shake' : ''}`"
-    @click="onClick"
+    @click.stop="onClick"
   >
     <svg
       width="16"

@@ -1,156 +1,105 @@
 <script setup lang="ts">
+import { formatDate } from '~/utils/formatDate'
 import type { FeedArticle } from '~/types'
-import { formatDistanceToNow } from 'date-fns'
-import { ru } from 'date-fns/locale'
+
+import AppLikeButton from '~/components/ui/AppLikeButton.vue'
+import AppDislikeButton from '~/components/ui/AppDislikeButton.vue'
 
 type FeedArticleProps = {
   item: FeedArticle
 }
 
-defineProps<FeedArticleProps>()
+const props = defineProps<FeedArticleProps>()
+
+const { isReactedAsLike, isReactedAsDislike, onToggleDislike, onToggleLike } =
+  useItemReaction(props.item.id, 'article')
+
+const authorColor = computed(() => {
+  return props.item.author ? props.item.author.color : '#4E8268'
+})
+
+const authorInitials = computed(() => {
+  return props.item.author ? props.item.author.initials : 'SS'
+})
+
+const authorName = computed(() => {
+  return props.item.author
+    ? props.item.author.displayName
+    : 'Команда SmartSpend'
+})
+
+const createdAt = computed(() => {
+  return formatDate(props.item.createdAt, 'PP')
+})
+
+const isRead = computed(() => {
+  return false
+})
 </script>
 
 <template>
-  <article class="rounded-14 border border-border bg-surface shadow-app-sm">
-    <div class="px-16 pt-14">
-      <div class="flex flex-col gap-10">
-        <div class="flex items-start justify-start gap-10">
-          <button
-            type="button"
-            class="inline-flex min-w-0 items-center gap-6 rounded-20 border-0 bg-transparent p-0 transition-opacity duration-120 hover:opacity-70"
-          >
-            <span
-              class="inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-author-avatar-green text-8 font-bold text-surface"
-            >
-              {{ item.author.initials }}
-            </span>
-            <span
-              class="truncate text-12 font-medium tracking-[-0.01em] text-text-2"
-            >
-              {{ item.author.displayName }}
-            </span>
-          </button>
+  <article :class="`feed-article${isRead ? ' read' : ''}`">
+    <h2 class="fa-title">{{ item.title }}</h2>
 
-          <span class="pt-2 shrink-0 font-secondary text-11 text-text-3">
-            {{
-              formatDistanceToNow(item.createdAt, {
-                locale: ru,
-                addSuffix: true
-              })
-            }}
+    <p class="fa-preview">{{ item.preview }}</p>
+
+    <div class="fa-meta-row">
+      <div class="author-chip-wrap">
+        <button class="author-chip">
+          <span class="author-avatar-sm" :style="{ background: authorColor }">
+            {{ authorInitials }}
           </span>
+
+          <span class="author-chip-meta">
+            <span class="author-name-inline">{{ authorName }}</span>
+            <span class="author-chip-date">{{ createdAt }}</span>
+          </span>
+        </button>
+      </div>
+
+      <div class="fa-meta-actions">
+        <AppLikeButton
+          :count="item.likesCount"
+          :is-liked="isReactedAsLike"
+          @toggle="onToggleLike"
+        />
+
+        <AppDislikeButton
+          :is-disliked="isReactedAsDislike"
+          @toggle="onToggleDislike"
+        />
+
+        <div v-if="item.commentsCount" class="fa-action-stat">
+          <svg
+            width="15"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            strokeWidth="1.8"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            />
+          </svg>
+          {{ item.commentsCount }}
         </div>
-
-        <h3 class="text-16 font-semibold tracking-[-0.02em] text-text">
-          {{ item.title }}
-        </h3>
       </div>
 
-      <p class="mt-8 text-13 leading-[1.45] text-text-2">
-        {{ item.preview }}
-      </p>
-    </div>
-
-    <div
-      class="mt-12 flex flex-wrap items-center gap-10 border-t border-border px-16 py-9"
-    >
-      <div class="inline-flex items-center gap-10">
-        <button
-          type="button"
-          class="inline-flex items-center gap-4 border-0 bg-transparent p-0 font-secondary text-11 text-accent-green transition-colors duration-120"
-        >
-          <svg
-            width="13"
-            height="13"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"
-            ></path>
-            <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-          </svg>
-          <span>{{ item.likesCount }}</span>
+      <div class="fa-meta-right">
+        <button class="fa-category">
+          {{ item.categoryId }}
         </button>
 
-        <button
-          type="button"
-          class="inline-flex items-center gap-4 border-0 bg-transparent p-0 font-secondary text-11 text-text-3 transition-colors duration-120 hover:text-status-urgent"
+        <span
+          v-if="item.setLink"
+          class="fa-set-link"
+          :style="{ '--set-clr': item.setLink.color }"
         >
-          <svg
-            width="13"
-            height="13"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"
-            ></path>
-            <path
-              d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"
-            ></path>
-          </svg>
-          <span>{{ item.dislikesCount }}</span>
-        </button>
-      </div>
-
-      <div
-        class="inline-flex items-center gap-4 font-secondary text-11 text-text-3"
-      >
-        <svg
-          width="12"
-          height="12"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-          ></path>
-        </svg>
-        <span>{{ item.commentsCount }}</span>
-      </div>
-
-      <div
-        class="inline-flex items-center gap-4 font-secondary text-11 text-text-3"
-      >
-        <svg
-          width="12"
-          height="12"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-          ></path>
-          <circle cx="12" cy="12" r="3"></circle>
-        </svg>
-        <span>{{ item.viewsCount }}</span>
-      </div>
-
-      <div class="flex-1"></div>
-
-      <div
-        v-if="item.linkedSetTitle"
-        class="inline-flex items-center gap-5 text-11 tracking-[-0.01em] text-text-3"
-      >
-        <span class="h-7 w-7 rounded-full bg-set-dot-slate"></span>
-        <span>Набор: {{ item.linkedSetTitle }}</span>
+          {{ item.setLink.title }}
+        </span>
       </div>
     </div>
   </article>

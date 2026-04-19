@@ -38,7 +38,7 @@ const onClick = () => {
   <div class="action-wrap">
     <button
       :class="`fa-action-btn${isLiked ? ' liked' : ''}${anim ? ' like-pop' : ''}`"
-      @click="onClick"
+      @click.stop="onClick"
     >
       <svg
         width="16"

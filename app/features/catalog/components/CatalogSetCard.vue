@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { formatDate } from '~/utils/formatDate'
-import { formatSource } from '~/features/sets/utils/formatSource'
 import type { CustomSet } from '~/types'
-import { formatType } from '~/features/sets/utils/formatType'
+
+import AppLikeButton from '~/components/ui/AppLikeButton.vue'
+import AppDislikeButton from '~/components/ui/AppDislikeButton.vue'
 
 type CatalogSetCardProps = {
   item: CustomSet
@@ -12,36 +13,31 @@ const props = defineProps<CatalogSetCardProps>()
 
 const router = useRouter()
 
-const sourceLabel = computed(() => {
-  return formatSource(props.item.source)
-})
-
-const typeLabel = computed(() => {
-  return formatType(props.item.setType)
-})
-
-const items = computed(() => {
-  return props.item.itemNames.slice(0, 4)
-})
-
-const additionalItemsCount = computed(() => {
-  return props.item.itemNames.length > 4 ? props.item.itemNames.length - 4 : 0
-})
+const { isReactedAsLike, isReactedAsDislike, onToggleDislike, onToggleLike } =
+  useItemReaction(props.item.id, 'set')
 
 const effectiveFullCost = computed(() => {
-  return props.item.amount
+  return props.item.fullCost || props.item.monthly || props.item.amount
 })
 
 const categoryLabel = computed(() => {
-  return 'Все'
+  return props.item.categoryName
 })
 
-const authorChipComponent = computed(() => {
-  if (props.item.source === 'smartspend') {
-    return null // SmartSpendChip
-  } else {
-    return null // AuthorChip
-  }
+const isSmartSpend = computed(() => {
+  return props.item.source === 'smartspend'
+})
+
+const authorColor = computed(() => {
+  return isSmartSpend.value ? '#4E8268' : props.item.author?.color
+})
+
+const authorInitials = computed(() => {
+  return isSmartSpend.value ? 'SS' : props.item.author?.initials
+})
+
+const authorName = computed(() => {
+  return isSmartSpend.value ? 'SmartSpend' : props.item.author?.displayName
 })
 
 const onOpenDetails = () => {
@@ -50,7 +46,7 @@ const onOpenDetails = () => {
 </script>
 
 <template>
-  <div class="catalog-card">
+  <div class="catalog-card" @click="onOpenDetails">
     <div class="card-body">
       <div class="card-title">{{ item.title }}</div>
       <div class="card-desc">{{ item.description }}</div>
@@ -59,7 +55,7 @@ const onOpenDetails = () => {
     <div class="card-cost-row">
       <div class="card-cost-item card-cost-monthly">
         <div class="card-cost-val">
-          {{ item.amount.toLocaleString('ru') }} ₽
+          {{ (item.monthly || item.amount).toLocaleString('ru') }} ₽
         </div>
 
         <div class="card-cost-lbl">в месяц</div>
@@ -78,6 +74,7 @@ const onOpenDetails = () => {
         <div class="card-cost-val">
           {{ effectiveFullCost.toLocaleString('ru') }} ₽
         </div>
+
         <div class="card-cost-lbl">общая стоимость</div>
       </div>
 
@@ -103,7 +100,7 @@ const onOpenDetails = () => {
             Приватный
           </span>
 
-          <span v-else>{{ 0 }}</span>
+          <span v-else>{{ item.usersCount }}</span>
         </div>
 
         <div class="card-cost-lbl">подписчиков</div>
@@ -112,12 +109,41 @@ const onOpenDetails = () => {
 
     <div class="card-bottom">
       <div class="card-bottom-author">
-        <component :is="authorChipComponent" />
+        <button class="author-chip">
+          <span
+            class="author-avatar-sm"
+            :style="{
+              background: authorColor,
+              fontSize: '9px',
+              fontWeight: 700
+            }"
+          >
+            {{ authorInitials }}
+          </span>
+
+          <span class="author-chip-meta">
+            <span class="author-name-inline">
+              {{ authorName }}
+            </span>
+
+            <span class="author-chip-date">
+              {{ formatDate(item.createdAt, 'PP') }}
+            </span>
+          </span>
+        </button>
       </div>
 
       <div class="fa-meta-actions">
-        <!--    Like button   -->
-        <!--    Dislike button   -->
+        <AppLikeButton
+          :count="item.likesCount"
+          :is-liked="isReactedAsLike"
+          @toggle="onToggleLike"
+        />
+
+        <AppDislikeButton
+          :is-disliked="isReactedAsDislike"
+          @toggle="onToggleDislike"
+        />
 
         <button class="fa-action-stat fa-action-stat--btn">
           <svg
@@ -134,11 +160,13 @@ const onOpenDetails = () => {
               d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
             />
           </svg>
-          10
+
+          {{ item.commentsCount }}
         </button>
 
         <!--    Bookmark button   -->
       </div>
+
       <div class="fa-meta-right">
         <button class="fa-category">
           {{ categoryLabel }}

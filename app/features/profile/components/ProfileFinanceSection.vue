@@ -4,6 +4,8 @@ import { useCurrentUser } from '~/composables/useCurrentUser'
 import { useEnvelopes } from '~/features/sets/queries/useEnvelopes'
 
 import BudgetGroup from '~/features/profile/components/BudgetGroup.vue'
+import { useModal } from 'vue-final-modal'
+import FinancialModal from '~/features/profile/components/FinancialModal.vue'
 
 const { currentUser } = useCurrentUser()
 const { data: categoriesData } = useSetCategories()
@@ -196,6 +198,15 @@ const budgetGroups = computed(() => {
     }
   ].filter((g) => (g.total !== null && g.total !== 0) || g.rows.length > 0)
 })
+
+const financialModal = useModal({
+  component: FinancialModal,
+  attrs: {}
+})
+
+const onShowFinanceModal = () => {
+  financialModal.open()
+}
 </script>
 
 <template>
@@ -285,7 +296,10 @@ const budgetGroups = computed(() => {
     </template>
 
     <template v-if="finance.income === 0">
-      <button class="zero-state-banner zero-state-banner--warn">
+      <button
+        class="zero-state-banner zero-state-banner--warn"
+        @click="onShowFinanceModal"
+      >
         <span class="zero-state-icon">
           <svg
             width="18"
