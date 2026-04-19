@@ -449,7 +449,11 @@ const isSmartSpend = computed(() => {
         </div>
 
         <div v-else class="sd-articles-list">
-          <div v-for="article in myArticles" class="sd-article-card">
+          <div
+            v-for="article in myArticles"
+            :key="article.id"
+            class="sd-article-card"
+          >
             <div class="sd-art-avatar" :style="{ background: '#8B7B6B' }">
               {{ article.author.initials }}
             </div>

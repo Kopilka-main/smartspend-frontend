@@ -1,6 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
+  <div></div>
   <!--  <div class="section-card" :style="{ overflow: 'visible' }">-->
   <!--    <div class="sd-comments-header-row">-->
   <!--      <span class="sd-section-title">Комментарии</span>-->
