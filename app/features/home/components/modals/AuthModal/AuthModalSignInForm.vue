@@ -2,7 +2,6 @@
 import { useForm } from 'vee-validate'
 import * as v from 'valibot'
 import { toTypedSchema } from '@vee-validate/valibot'
-import AppInputPassword from '~/components/ui/inputs/AppInputPassword.vue'
 
 const { defineField, handleSubmit, meta, errors } = useForm({
   validationSchema: toTypedSchema(
