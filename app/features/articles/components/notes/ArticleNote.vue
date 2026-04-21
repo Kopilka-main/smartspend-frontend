@@ -1,11 +1,19 @@
 <script setup lang="ts">
+import type { Note } from '~/types'
+
 type ArticleNoteProps = {
-  note: any
+  note: Note
 }
 
-defineProps<ArticleNoteProps>()
+const props = defineProps<ArticleNoteProps>()
 
-const onRemoveNote = () => {}
+const emit = defineEmits<{
+  (e: 'remove', id: string): void
+}>()
+
+const onRemoveNote = () => {
+  emit('remove', props.note.id)
+}
 </script>
 
 <template>

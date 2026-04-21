@@ -15,7 +15,9 @@ const { mutate, isLoading } = useCreateArticleNote(
 const onSubmitNote = () => {
   if (noteText.value === '') return
 
-  mutate()
+  mutate({
+    text: noteText.value
+  })
 }
 </script>
 

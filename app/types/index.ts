@@ -220,6 +220,12 @@ export type ArticleSingleSet = {
   usersCount: number
 }
 
+export type Note = {
+  id: string
+  text: string
+  createdAt: Date
+}
+
 export type ArticleDetails = {
   id: string
   title: string
@@ -249,6 +255,7 @@ export type ArticleDetails = {
   }
   createdAt: Date
   updatedAt: Date
+  notes: Note[]
 }
 
 export type Finance = {

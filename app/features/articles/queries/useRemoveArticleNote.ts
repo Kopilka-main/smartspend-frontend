@@ -1,20 +1,15 @@
 import { useMutation, useQueryCache } from '@pinia/colada'
 
-export const useCreateArticleNote = (id: string, onSuccess: () => void) => {
+export const useRemoveArticleNote = (id: string) => {
   const { $api } = useNuxtApp()
   const queryCache = useQueryCache()
 
   return useMutation({
-    mutation: async (vars: { text: string }) => {
-      return await $api(`/articles/${id}/notes`, {
-        method: 'POST',
-        body: { ...vars }
-      })
+    mutation: async (id: string) => {
+      return await $api(`/articles/notes/${id}`, { method: 'DELETE' })
     },
     onSuccess: () => {
       queryCache.invalidateQueries({ key: ['article', id] })
-
-      onSuccess()
     }
   })
 }
