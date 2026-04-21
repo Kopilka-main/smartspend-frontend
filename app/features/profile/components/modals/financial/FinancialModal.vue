@@ -39,15 +39,13 @@ watch(finance, (value) => {
   form.value.creditMonths = value.creditMonths
   form.value.capital = value.capital
 
-  // @ts-ignore
+  // @ts-expect-error
   currentValue.value = form.value[current.value.id]
 })
 
 watch(step, () => {
-  // @ts-ignore
+  // @ts-expect-error
   currentValue.value = form.value[current.value.id]
-
-  console.log(currentValue.value)
 })
 
 const BASE_STEPS = [
@@ -130,7 +128,7 @@ const onBack = () => {
 const onNext = () => {
   if (!isValid.value) return
 
-  // @ts-ignore
+  // @ts-expect-error
   form.value[current.value.id] = currentValue.value
 
   if (step.value < steps.value.length - 1) {
