@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useSetCategories } from '~/queries/useSetCategories'
-import { useMySets } from '~/features/account/queries/useMySets'
-import { useSets } from '~/features/catalog/queries/useSets'
+import { useCategories } from '~/composables/useCategories'
+import { useMySets } from '~/features/account/composables/useMySets'
+import { usePublicSets } from '~/features/articles/composables/usePublicSets'
+
 import type { CustomSet } from '~/types'
 
 type ArticleSetPickerProps = {
@@ -10,20 +11,26 @@ type ArticleSetPickerProps = {
 
 const props = defineProps<ArticleSetPickerProps>()
 
-const { data: categoriesData } = useSetCategories()
-const { data: mySetsData } = useMySets()
+const { categories } = useCategories()
+const { mySets } = useMySets()
+const { publicSets } = usePublicSets()
 
-const mySets = computed(() => {
-  return mySetsData.value ? mySetsData.value.data : []
+const filteredMySets = computed(() => {
+  return mySets.value.filter((set) => set.categoryId === props.category)
 })
 
-const categories = computed(() => {
-  return categoriesData.value ? categoriesData.value.data : []
+const filteredPublicSets = computed(() => {
+  return publicSets.value.filter((set) => set.categoryId === props.category)
 })
 
 const modelValue = defineModel<CustomSet[]>({ default: () => [] })
 
 const isSetPickedOpened = ref(false)
+const dropdownElem = useTemplateRef('dropdownElem')
+onClickOutside(dropdownElem, () => {
+  isSetPickedOpened.value = false
+})
+
 const setType = ref('public') // personal
 
 const selectedCategoryTitle = computed(() => {
@@ -36,23 +43,36 @@ const selectedCategoryTitle = computed(() => {
   return ''
 })
 
-const isSetTaken = (set: any) => {
-  return false
+const isSetTaken = (set: CustomSet) => {
+  return !!modelValue.value.find((s) => s.id === set.id)
 }
-
-const dropdownElem = useTemplateRef('dropdownElem')
-
-onClickOutside(dropdownElem, () => {
-  isSetPickedOpened.value = false
-})
 
 const pickerSets = computed(() => {
   if (setType.value === 'personal') {
-    return mySets.value
+    return filteredMySets.value
   }
 
-  return []
+  return filteredPublicSets.value
 })
+
+const placeholder = computed(() => {
+  return props.category
+    ? `Нет наборов для «${selectedCategoryTitle.value}»`
+    : 'Сначала выберите категорию'
+})
+
+const onRemoveSet = (id: string) => {
+  modelValue.value = modelValue.value.filter((set) => set.id !== id)
+}
+
+const onSelectSet = (set: CustomSet) => {
+  const isTaken = !!modelValue.value.find((s) => s.id === set.id)
+
+  if (isTaken) return
+
+  modelValue.value.push(set)
+  isSetPickedOpened.value = false
+}
 </script>
 
 <template>
@@ -71,11 +91,9 @@ const pickerSets = computed(() => {
 
         <span class="linked-set-name">{{ linkedSet.title }}</span>
 
-        <span class="linked-set-amount">
-          {{ linkedSet.amount }}
-        </span>
+        <span class="linked-set-amount"> {{ linkedSet.amount }} ₽ </span>
 
-        <button class="linked-set-remove">
+        <button class="linked-set-remove" @click="onRemoveSet(linkedSet.id)">
           <svg
             width="10"
             height="10"
@@ -105,6 +123,7 @@ const pickerSets = computed(() => {
           >
             <path d="M12 5v14M5 12h14" />
           </svg>
+
           Прикрепить набор
         </button>
 
@@ -131,11 +150,7 @@ const pickerSets = computed(() => {
 
           <div class="set-picker-list">
             <div v-if="pickerSets.length === 0" class="set-picker-empty">
-              {{
-                category
-                  ? `Нет наборов для «${selectedCategoryTitle}»`
-                  : 'Сначала выберите категорию'
-              }}
+              {{ placeholder }}
             </div>
 
             <template v-else>
@@ -143,12 +158,14 @@ const pickerSets = computed(() => {
                 v-for="set in pickerSets"
                 :key="set.id"
                 :class="`set-picker-item${isSetTaken(set) ? ' set-picker-item--added' : ''}`"
+                @click="onSelectSet(set)"
               >
                 <div class="set-picker-info">
                   <span class="set-picker-name">{{ set.title }}</span>
 
                   <span class="set-picker-meta">
-                    {{ set.amount }}
+                    {{ set.amount }} ₽ {{ set.period }} ·
+                    <!--      TODO: Tags              {{ set.tags.join(', ') }}-->
                   </span>
                 </div>
 

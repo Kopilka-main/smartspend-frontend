@@ -1,7 +1,7 @@
 import { useQuery } from '@pinia/colada'
 import type { SetCategory } from '~/types'
 
-export const useSetCategories = () => {
+export const useFetchCategories = () => {
   const { $api } = useNuxtApp()
 
   return useQuery({

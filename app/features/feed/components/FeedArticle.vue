@@ -31,14 +31,10 @@ const authorName = computed(() => {
 const createdAt = computed(() => {
   return formatDate(props.item.createdAt, 'PP')
 })
-
-const isRead = computed(() => {
-  return false
-})
 </script>
 
 <template>
-  <article :class="`feed-article${isRead ? ' read' : ''}`">
+  <article class="feed-article">
     <h2 class="fa-title">{{ item.title }}</h2>
 
     <p class="fa-preview">{{ item.preview }}</p>
@@ -90,7 +86,7 @@ const isRead = computed(() => {
 
       <div class="fa-meta-right">
         <button class="fa-category">
-          {{ item.categoryId }}
+          {{ item.categoryName }}
         </button>
 
         <span

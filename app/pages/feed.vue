@@ -1,18 +1,11 @@
 <script setup lang="ts">
 import { useFeed } from '~/features/feed/queries/useFeed'
-import type {
-  FeedArticle as FeedArticleType,
-  FeedSet as FeedSetType
-} from '~/types'
 
-// import AppPageHeader from '~/components/layout/AppPageHeader.vue'
-// import FeedFilters from '~/features/feed/components/FeedFilters.vue'
 import FeedArticle from '~/features/feed/components/FeedArticle.vue'
 import AppSimpleSelect from '~/components/ui/inputs/AppSimpleSelect.vue'
-// import AppEmpty from '~/components/layout/AppEmpty.vue'
-import FeedSet from '~/features/feed/components/FeedSet.vue'
 import FeedTagSearchInput from '~/features/feed/components/FeedTagSearchInput.vue'
 import CatalogCategoriesSelect from '~/features/catalog/components/CatalogCategoriesSelect.vue'
+import FeedSortInput from '~/features/feed/components/FeedSortInput.vue'
 
 definePageMeta({
   layout: 'dashboard',
@@ -28,9 +21,8 @@ useHead({
 
 const filters = ref({
   categories: [],
-  sort: 'popular_all',
-  articleType: 'all',
   mode: 'all',
+  sort: 'popular_7d',
   q: ''
 })
 
@@ -43,7 +35,7 @@ const items = computed(() => {
 const modeItems = [
   { value: 'all', label: 'Все' },
   { value: 'subscriptions', label: 'Подписки' },
-  { value: 'my-sets', label: 'Мои наборы' },
+  { value: 'my_sets', label: 'Мои наборы' },
   { value: 'liked', label: 'Избранное' }
 ]
 
@@ -54,8 +46,15 @@ const hasFilters = computed(() => {
 const noun = (n: number) => {
   const m = n % 10,
     c = n % 100
-  if (m === 1 && c !== 11) return 'материал'
-  if (m >= 2 && m <= 4 && (c < 10 || c >= 20)) return 'материала'
+
+  if (m === 1 && c !== 11) {
+    return 'материал'
+  }
+
+  if (m >= 2 && m <= 4 && (c < 10 || c >= 20)) {
+    return 'материала'
+  }
+
   return 'материалов'
 }
 
@@ -85,7 +84,7 @@ const resetFilters = () => {}
               :items="modeItems"
             />
 
-            <!--            <SortDropdown sort="{sort}" onSort="{setSort}" />-->
+            <FeedSortInput v-model="filters.sort" />
           </div>
 
           <CatalogCategoriesSelect v-model="filters.categories" />
@@ -158,7 +157,7 @@ const resetFilters = () => {}
               статьи здесь
             </div>
           </template>
-          <template v-else-if="filters.mode === 'my-sets'">
+          <template v-else-if="filters.mode === 'my_sets'">
             <div class="empty-icon">
               <svg
                 width="24"

@@ -9,12 +9,11 @@ export const useFeed = (filters: Ref<any>) => {
       'articles',
       filters.value.categories.map((cat: SetCategory) => cat.id).join(','),
       filters.value.sort,
-      filters.value.articleType,
       filters.value.mode
     ],
     query: async () => {
       return await $api<{ data: FeedArticle[] }>(
-        `/feed?categories=${filters.value.categories.map((cat: SetCategory) => cat.id).join(',')}&sort=${filters.value.sort}&type=${filters.value.articleType}&mode=${filters.value.mode}`,
+        `/feed?cat=${filters.value.categories.map((cat: SetCategory) => cat.id).join(',')}&sort=${filters.value.sort}&mode=${filters.value.mode}`,
         { method: 'GET' }
       )
     }

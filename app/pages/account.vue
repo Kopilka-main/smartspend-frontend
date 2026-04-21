@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useMySets } from '~/features/account/queries/useMySets'
+import { useMyArticles } from '~/features/articles/composables/useMyArticles'
+import { useMySets } from '~/features/account/composables/useMySets'
 
 import AccountInfoCard from '~/features/account/components/AccountInfoCard.vue'
 import AccountSetsSection from '~/features/account/components/sets/AccountSetsSection.vue'
@@ -17,30 +18,19 @@ useHead({
   title: 'Аккаунт'
 })
 
-const { data: mySetsData } = useMySets()
-
-const mySets = computed(() => {
-  return mySetsData.value ? mySetsData.value.data : []
-})
+const { mySets } = useMySets()
+const { myArticles } = useMyArticles()
 
 const activeTab = ref('sets')
-
-const items = computed(() => {
-  switch (activeTab.value) {
-    case 'sets':
-      return mySets.value
-    case 'articles':
-      return []
-    default:
-      return []
-  }
-})
 
 const tabs = computed(() => {
   return [
     {
       id: 'articles',
-      label: 'Статьи'
+      label:
+        myArticles.value.length > 0
+          ? `Статьи · ${myArticles.value.length}`
+          : 'Статьи'
     },
     {
       id: 'sets',
@@ -100,6 +90,6 @@ const activeTabComponent = computed(() => {
       </button>
     </div>
 
-    <component :is="activeTabComponent" :items="items" />
+    <component :is="activeTabComponent" />
   </main>
 </template>

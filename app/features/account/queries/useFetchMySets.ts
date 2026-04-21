@@ -1,7 +1,7 @@
 import { useQuery } from '@pinia/colada'
 import type { CustomSet } from '~/types'
 
-export const useMySets = () => {
+export const useFetchMySets = () => {
   const { $api } = useNuxtApp()
 
   return useQuery({

@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import { useSetCategories } from '~/queries/useSetCategories'
+import { useCategories } from '~/composables/useCategories'
 
 const modelValue = defineModel<string>({ required: true })
 
-const { data } = useSetCategories()
-
-const categories = computed(() => {
-  return data.value ? data.value.data : []
-})
+const { categories } = useCategories()
 </script>
 
 <template>

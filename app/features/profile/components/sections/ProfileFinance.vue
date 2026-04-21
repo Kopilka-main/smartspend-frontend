@@ -1,19 +1,16 @@
 <script setup lang="ts">
-import { useSetCategories } from '~/queries/useSetCategories'
-import { useCurrentUser } from '~/composables/useCurrentUser'
+import { useModal } from 'vue-final-modal'
+import { useFinance } from '~/features/profile/composables/useFinance'
 import { useEnvelopes } from '~/features/sets/queries/useEnvelopes'
+import { useCategories } from '~/composables/useCategories'
+import { formatDate } from '~/utils/formatDate'
 
 import BudgetGroup from '~/features/profile/components/BudgetGroup.vue'
-import { useModal } from 'vue-final-modal'
-import FinancialModal from '~/features/profile/components/FinancialModal.vue'
+import FinancialModal from '~/features/profile/components/modals/financial/FinancialModal.vue'
 
-const { currentUser } = useCurrentUser()
-const { data: categoriesData } = useSetCategories()
 const { data: envelopesData } = useEnvelopes()
-
-const categories = computed(() => {
-  return categoriesData.value ? categoriesData.value.data : []
-})
+const { finance } = useFinance()
+const { categories } = useCategories()
 
 const envelopes = computed(() => {
   return envelopesData.value ? envelopesData.value.data : []
@@ -26,19 +23,6 @@ const calcItemMonthly = (item: any) => {
   }
   return Math.round(((item.basePrice || 0) / (item.wearLifeWeeks || 52)) * 4.33)
 }
-
-const finance = computed(() => {
-  return currentUser.value
-    ? currentUser.value.finance
-    : {
-        income: 0,
-        housing: 0,
-        credit: 0,
-        creditMonths: 0,
-        capital: 0,
-        emoRate: 0
-      }
-})
 
 const FEDERAL_PM_2026 = 20644
 const SMART_SPEND_BASE = Math.round(FEDERAL_PM_2026 * 0.75)
@@ -67,11 +51,13 @@ const SMART_SPEND_BASE = Math.round(FEDERAL_PM_2026 * 0.75)
 // })
 
 const hasUpdatedAt = computed(() => {
-  return false
+  return !!finance.value.updatedAt
 })
 
 const updatedAt = computed(() => {
-  return ''
+  return hasUpdatedAt.value
+    ? formatDate(finance.value.updatedAt as Date, 'PPP')
+    : ''
 })
 
 const grandTotal = computed(() => {
@@ -201,7 +187,11 @@ const budgetGroups = computed(() => {
 
 const financialModal = useModal({
   component: FinancialModal,
-  attrs: {}
+  attrs: {
+    onClose: () => {
+      financialModal.close()
+    }
+  }
 })
 
 const onShowFinanceModal = () => {
@@ -226,7 +216,11 @@ const onShowFinanceModal = () => {
           gap: '2px'
         }"
       >
-        <button id="sp-btn-finance" class="section-link">
+        <button
+          id="sp-btn-finance"
+          class="section-link"
+          @click="onShowFinanceModal"
+        >
           <svg
             width="11"
             height="11"
@@ -240,6 +234,7 @@ const onShowFinanceModal = () => {
             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
             <path d="M3 3v5h5" />
           </svg>
+
           Обновить данные
         </button>
 

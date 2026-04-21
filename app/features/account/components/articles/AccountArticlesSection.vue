@@ -1,12 +1,23 @@
 <script setup lang="ts">
-const items = ref([])
+import { useMyArticles } from '~/features/articles/composables/useMyArticles'
+
+import AccountArticleCard from '~/features/account/components/articles/AccountArticleCard.vue'
+
+const { myArticles } = useMyArticles()
+
+const router = useRouter()
+
+const onCreateArticle = () => {
+  router.push('/articles/new')
+}
 </script>
 
 <template>
   <div class="acc-panel">
     <div class="panel-header">
       <span class="panel-title">Статьи, которые вы написали</span>
-      <button class="acc-btn-primary">
+
+      <button class="acc-btn-primary" @click="onCreateArticle">
         <svg
           width="14"
           height="14"
@@ -22,7 +33,7 @@ const items = ref([])
       </button>
     </div>
 
-    <div v-if="items.length === 0" class="acc-empty">
+    <div v-if="myArticles.length === 0" class="acc-empty">
       <div class="acc-empty-icon">
         <svg
           width="32"
@@ -45,5 +56,11 @@ const items = ref([])
         Напишите первую статью и поделитесь опытом с сообществом
       </div>
     </div>
+
+    <AccountArticleCard
+      v-for="article in myArticles"
+      :key="article.id"
+      :article="article"
+    />
   </div>
 </template>

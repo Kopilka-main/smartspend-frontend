@@ -1,24 +1,26 @@
 <script setup lang="ts">
 import { useAllSets } from '~/features/catalog/queries/useAllSets'
 import { useAddSetToArticle } from '~/features/articles/queries/useAddSetToArticle'
+import { useArticle } from '~/features/articles/composables/useArticle'
+
+import type { CustomSet } from '~/types'
 
 import AppModal from '~/components/layout/AppModal.vue'
-
-import type { ArticleDetails, CustomSet } from '~/types'
-
-type AddToSetModalProps = {
-  article: ArticleDetails
-}
-
-const props = defineProps<AddToSetModalProps>()
 
 const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-const addSetToArticleMutation = useAddSetToArticle(props.article.id, () => {
-  emit('close')
-})
+const route = useRoute()
+
+const { article } = useArticle(route.params.id as string)
+
+const addSetToArticleMutation = useAddSetToArticle(
+  route.params.id as string,
+  () => {
+    emit('close')
+  }
+)
 
 const { data: allSetsData, isLoading } = useAllSets()
 
@@ -29,7 +31,7 @@ const sets = computed(() => {
 const selectedSet = ref('')
 
 const isLinkedSet = (set: CustomSet) => {
-  return props.article.linkedSetId === set.id
+  return article.value?.linkedSetId === set.id
 }
 
 const onSubmit = () => {

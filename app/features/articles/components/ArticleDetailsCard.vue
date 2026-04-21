@@ -1,40 +1,23 @@
 <script setup lang="ts">
-import { useModal } from 'vue-final-modal'
-import { useCurrentUser } from '~/composables/useCurrentUser'
 import { useItemReaction } from '~/composables/useItemReaction'
-
-import type { ArticleDetails } from '~/types'
+import { useArticle } from '~/features/articles/composables/useArticle'
+import { useAddToSetModal } from '~/features/articles/composables/useAddToSetModal'
+import { formatDate } from '~/utils/formatDate'
 
 import AppLikeButton from '~/components/ui/AppLikeButton.vue'
 import AppDislikeButton from '~/components/ui/AppDislikeButton.vue'
-import AddToSetModal from '~/features/articles/components/AddToSetModal.vue'
 
-type ArticleDetailsCardProps = {
-  article: ArticleDetails
-}
+const route = useRoute()
 
-const props = defineProps<ArticleDetailsCardProps>()
+const { article, title, isMine } = useArticle(route.params.id as string)
 
 const { isReactedAsDislike, isReactedAsLike, onToggleDislike, onToggleLike } =
-  useItemReaction(props.article.id, 'article')
+  useItemReaction(route.params.id as string, 'article')
 
-const addToSetModal = useModal({
-  component: AddToSetModal,
-  attrs: {
-    article: props.article,
+const addToSetModal = useAddToSetModal()
 
-    onClose: () => {
-      addToSetModal.close()
-    }
-  }
-})
-
-const { currentUser } = useCurrentUser()
-
-const author = computed(() => props.article.author)
-
-const isMine = computed(() => {
-  return currentUser.value?.id === author.value.id
+const author = computed(() => {
+  return article.value?.author
 })
 
 const onAttachToSet = () => {
@@ -50,26 +33,26 @@ const onRemoveArticle = () => {}
   <div class="hero-card">
     <div class="hero-body">
       <div class="hero-body-main">
-        <div class="hero-title">{{ article.title }}</div>
+        <div class="hero-title">{{ title }}</div>
 
-        <div class="hero-desc">{{ article.preview }}</div>
+        <div class="hero-desc">{{ article?.preview }}</div>
       </div>
     </div>
 
     <div class="art-meta-row">
       <span class="author-chip-wrap">
         <button class="author-chip">
-          <span class="author-avatar-sm" :style="{ background: author.color }">
-            {{ author.initials }}
+          <span class="author-avatar-sm" :style="{ background: author?.color }">
+            {{ author?.initials }}
           </span>
 
           <span class="author-chip-meta">
             <span class="author-name-inline">
-              {{ author.displayName }}
+              {{ author?.displayName }}
             </span>
 
-            <span v-if="article.publishedAt" class="author-chip-date">
-              {{ article.publishedAt }}
+            <span v-if="article?.createdAt" class="author-chip-date">
+              {{ formatDate(article?.createdAt as Date, 'PPP') }}
             </span>
           </span>
         </button>
@@ -90,11 +73,11 @@ const onRemoveArticle = () => {}
           <circle cx="12" cy="12" r="3" />
         </svg>
 
-        {{ article.viewsCount }}
+        {{ article?.viewsCount || 0 }}
       </div>
 
       <AppLikeButton
-        :count="article.likesCount"
+        :count="article?.likesCount || 0"
         :is-liked="isReactedAsLike"
         @toggle="onToggleLike"
       />
@@ -115,7 +98,7 @@ const onRemoveArticle = () => {}
           />
         </svg>
 
-        {{ article.commentsCount }}
+        {{ article?.commentsCount || 0 }}
       </button>
 
       <AppDislikeButton

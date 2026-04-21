@@ -1,13 +1,9 @@
 <script setup lang="ts">
+import { useMySets } from '~/features/account/composables/useMySets'
+
 import AccountSetCard from '~/features/account/components/sets/AccountSetCard.vue'
 
-import type { CustomSet } from '~/types'
-
-type AccountSetsSectionProps = {
-  items: CustomSet[]
-}
-
-defineProps<AccountSetsSectionProps>()
+const { mySets } = useMySets()
 
 const router = useRouter()
 
@@ -28,7 +24,7 @@ const onCreateNewSet = () => {
       </button>
     </div>
 
-    <div v-if="items.length === 0" class="acc-empty">
+    <div v-if="mySets.length === 0" class="acc-empty">
       <div class="acc-empty-icon">
         <Icon name="icons:sets-empty" :size="32" />
       </div>
@@ -41,7 +37,7 @@ const onCreateNewSet = () => {
     </div>
 
     <div class="catalog-grid">
-      <AccountSetCard v-for="item in items" :key="item.id" :item="item" />
+      <AccountSetCard v-for="set in mySets" :key="set.id" :set="set" />
     </div>
   </div>
 </template>

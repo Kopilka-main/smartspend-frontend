@@ -1,13 +1,13 @@
 import { useQuery } from '@pinia/colada'
 import type { ArticleDetails } from '~/types'
 
-export const useArticle = (id: string) => {
+export const useFetchMyArticles = () => {
   const { $api } = useNuxtApp()
 
   return useQuery({
-    key: ['article', id],
+    key: ['my-articles'],
     query: async () => {
-      return await $api<{ data: ArticleDetails }>(`/articles/${id}`, {
+      return await $api<{ data: ArticleDetails[] }>('/articles/my', {
         method: 'GET'
       })
     }

@@ -145,6 +145,7 @@ export type FeedArticle = {
   title: string
   articleType: string
   categoryId: string
+  categoryName: string
   preview: string
   publishedAt: Date
   status: string
@@ -163,6 +164,10 @@ export type FeedArticle = {
     avatarUrl: string
   }
   createdAt: Date
+  setLink?: {
+    title: string
+    color: string
+  }
 }
 
 export type FeedSet = {
@@ -196,10 +201,30 @@ export type ArticleBlock = {
   type: string
 }
 
+export type ArticleLinkedSet = {
+  categoryId: string
+  categoryName: string
+  color: string
+  id: string
+  title: string
+  amount: number
+  period: string
+}
+
+export type ArticleSingleSet = {
+  title: string
+  description: string
+  amount: number
+  amountLabel: string
+  period: string
+  usersCount: number
+}
+
 export type ArticleDetails = {
   id: string
   title: string
   articleType: string
+  isPrivate: boolean
   categoryId: string
   categoryName: string
   preview: string
@@ -211,6 +236,8 @@ export type ArticleDetails = {
   commentsCount: number
   linkedSetId: string
   linkedSetTitle: string
+  linkedSets: ArticleLinkedSet[]
+  setLink: ArticleSingleSet
   blocks: ArticleBlock[]
   author: {
     id: string
@@ -222,4 +249,14 @@ export type ArticleDetails = {
   }
   createdAt: Date
   updatedAt: Date
+}
+
+export type Finance = {
+  income: number
+  housing: number
+  credit: number
+  creditMonths: number
+  capital: number
+  emoRate: string
+  updatedAt: Date | null
 }

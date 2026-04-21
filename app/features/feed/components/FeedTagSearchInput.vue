@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { onClickOutside } from '@vueuse/core'
+import { useFeedTags } from '~/features/feed/queries/useFeedTags'
 
 const modelValue = defineModel<string>({ default: '' })
 
+const { data } = useFeedTags()
+
+const suggestions = computed(() => {
+  return data.value ? data.value.data : []
+})
+
 const isFocused = ref(false)
-const suggestions = ref<string[]>(['hello world'])
 const dropdownElem = useTemplateRef('dropdownElem')
 
 const onSelectSuggestion = (suggestion: string) => {

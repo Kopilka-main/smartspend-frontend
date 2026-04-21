@@ -3,6 +3,9 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/valibot'
 import * as v from 'valibot'
 
+import { useCreateArticle } from '~/features/articles/queries/useCreateArticle'
+import type { CustomSet } from '~/types'
+
 import ArticleSetPicker from '~/features/articles/components/ArticleSetPicker.vue'
 import AppVisibilityToggle from '~/components/ui/AppVisibilityToggle.vue'
 import AppCategoriesChips from '~/components/ui/AppCategoriesChips.vue'
@@ -19,9 +22,15 @@ useHead({
   title: 'Создание статьи'
 })
 
+const router = useRouter()
 const isPrivate = ref(false)
 const selectedCategory = ref('')
+const linkedSets = ref<CustomSet[]>([])
 const images = ref<any[]>([])
+
+const { mutate, isLoading } = useCreateArticle(() => {
+  router.push('/account')
+})
 
 const visibilityLabel = computed(() => {
   return isPrivate.value
@@ -32,19 +41,44 @@ const visibilityLabel = computed(() => {
 const { defineField, handleSubmit } = useForm({
   validationSchema: toTypedSchema(
     v.object({
-      title: v.pipe(v.string())
+      title: v.pipe(v.string()),
+      preview: v.pipe(v.string()),
+      body: v.pipe(v.string())
     })
   )
 })
 
 const [title, titleProps] = defineField('title')
-const excerpt = ref('')
+const [preview, previewProps] = defineField('preview')
+const [body, bodyProps] = defineField('body')
 
 const titleLength = computed(() => {
   return title.value ? title.value.length : 0
 })
 
-const onSubmit = handleSubmit(() => {})
+const previewLength = computed(() => {
+  return preview.value ? preview.value.length : 0
+})
+
+const onSubmit = handleSubmit((values) => {
+  mutate({
+    title: values.title,
+    preview: values.preview,
+    categoryId: selectedCategory.value,
+    isPrivate: isPrivate.value,
+    blocks: [
+      {
+        position: 0,
+        type: 'p',
+        text: values.body,
+        html: null,
+        items: null,
+        title: null
+      }
+    ],
+    linkedSetIds: linkedSets.value.map((set) => set.id)
+  })
+})
 </script>
 
 <template>
@@ -60,7 +94,12 @@ const onSubmit = handleSubmit(() => {})
       <div :style="{ display: 'flex', gap: '8px' }">
         <button class="btn-draft">Сохранить черновик</button>
 
-        <button id="sp-ca-publish" class="btn-publish" @click="onSubmit">
+        <button
+          id="sp-ca-publish"
+          class="btn-publish"
+          :disabled="isLoading"
+          @click="onSubmit"
+        >
           Опубликовать
         </button>
       </div>
@@ -97,7 +136,7 @@ const onSubmit = handleSubmit(() => {})
 
       <AppCategoriesChips v-model="selectedCategory" />
 
-      <ArticleSetPicker :category="selectedCategory" />
+      <ArticleSetPicker v-model="linkedSets" :category="selectedCategory" />
     </div>
 
     <div class="editor-field-block">
@@ -120,10 +159,12 @@ const onSubmit = handleSubmit(() => {})
       <div class="editor-field-label editor-field-label--body">
         <span>Краткое описание</span>
 
-        <span class="editor-char-count">{{ excerpt.length }}/250</span>
+        <span class="editor-char-count">{{ previewLength }}/250</span>
       </div>
 
       <textarea
+        v-model="preview"
+        v-bind="previewProps"
         class="editor-excerpt-input"
         placeholder="Короткий анонс статьи, который будет виден в ленте..."
         rows="2"
@@ -163,6 +204,8 @@ const onSubmit = handleSubmit(() => {})
       </div>
 
       <textarea
+        v-model="body"
+        v-bind="bodyProps"
         class="editor-body-input"
         placeholder="Начните писать статью..."
       />
@@ -182,8 +225,10 @@ const onSubmit = handleSubmit(() => {})
           <circle cx="8.5" cy="8.5" r="1.5" />
           <polyline points="21 15 16 10 5 21" />
         </svg>
+
         Фотографии{{ images.length > 0 ? ` · ${images.length}` : '' }}
       </div>
+
       <div class="photo-drop-zone">
         <svg
           width="28"
@@ -197,50 +242,17 @@ const onSubmit = handleSubmit(() => {})
           <polyline points="17 8 12 3 7 8" />
           <line x1="12" y1="3" x2="12" y2="15" />
         </svg>
+
         <div class="drop-zone-text">Перетащите фото или нажмите для выбора</div>
+
         <div class="drop-zone-hint">PNG, JPG, GIF, WebP</div>
+
         <input
           type="file"
           accept="image/*"
           multiple
           :style="{ display: 'none' }"
         />
-      </div>
-
-      <div v-if="images.length" class="photo-gallery">
-        <div v-for="image in images" :key="image" class="photo-thumb">
-          <img :src="image" />
-
-          <div class="photo-thumb-overlay">
-            <svg
-              width="14"
-              height="14"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-            >
-              <rect x="9" y="9" width="13" height="13" rx="2" />
-              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-            </svg>
-
-            Скопировать код
-          </div>
-
-          <button class="photo-thumb-remove">
-            <svg
-              width="10"
-              height="10"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              strokeWidth="2.5"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
       </div>
     </div>
   </main>

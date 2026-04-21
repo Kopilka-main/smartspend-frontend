@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import { useSetCategories } from '~/queries/useSetCategories'
+import { useCategories } from '~/composables/useCategories'
 
 import type { SetCategory } from '~/types'
 
-const { data: categoriesData } = useSetCategories()
-
-const categories = computed(() => {
-  return categoriesData.value ? categoriesData.value.data : []
-})
+const { categories } = useCategories()
 
 const modelValue = defineModel<SetCategory[]>({ default: () => [] })
 

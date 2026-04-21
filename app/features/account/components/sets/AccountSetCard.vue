@@ -7,33 +7,32 @@ import AppLikeButton from '~/components/ui/AppLikeButton.vue'
 import AppDislikeButton from '~/components/ui/AppDislikeButton.vue'
 
 type AccountSetCardProps = {
-  item: CustomSet
+  set: CustomSet
 }
 
 const props = defineProps<AccountSetCardProps>()
 
 const { onToggleLike, onToggleDislike, isReactedAsLike, isReactedAsDislike } =
-  useItemReaction(props.item.id.toString(), 'set')
+  useItemReaction(props.set.id.toString(), 'set')
 
 const visibilityLabel = computed(() => {
-  console.log(props.item)
-  return props.item.isPrivate ? 'Личный' : 'Публичный'
+  return props.set.isPrivate ? 'Личный' : 'Публичный'
 })
 
 const categoryLabel = computed(() => {
-  return props.item.categoryName
+  return props.set.categoryName
 })
 
 const items = computed(() => {
-  return props.item.items.length > 4
-    ? props.item.items.slice(0, 4)
-    : props.item.items
+  return props.set.items.length > 4
+    ? props.set.items.slice(0, 4)
+    : props.set.items
 })
 
 const monthly = computed(() => {
   return (
-    props.item.amount ||
-    props.item.items.reduce((sum, it) => {
+    props.set.amount ||
+    props.set.items.reduce((sum, it) => {
       if (it.itemType === 'consumable' && it.basePrice && it.qty && it.dailyUse)
         return sum + (it.basePrice / it.qty) * it.dailyUse * 30
       if (it.itemType === 'wear' && it.basePrice && it.wearLifeWeeks)
@@ -44,7 +43,7 @@ const monthly = computed(() => {
 })
 
 const totalCost = computed(() => {
-  return props.item.items.reduce(
+  return props.set.items.reduce(
     (sum, it) => sum + (Number(it.basePrice) || 0),
     0
   )
@@ -60,7 +59,7 @@ const totalCost = computed(() => {
         </span>
 
         <span
-          :class="`visibility-badge ${item.isPrivate ? 'private' : 'public'}`"
+          :class="`visibility-badge ${set.isPrivate ? 'private' : 'public'}`"
           :style="{ fontSize: '9px' }"
         >
           {{ visibilityLabel }}
@@ -68,25 +67,25 @@ const totalCost = computed(() => {
       </div>
 
       <div>
-        <div class="card-title">{{ item.title }}</div>
+        <div class="card-title">{{ set.title }}</div>
 
-        <div v-if="item.description" class="card-desc">
-          {{ item.description }}
+        <div v-if="set.description" class="card-desc">
+          {{ set.description }}
         </div>
       </div>
 
-      <div v-if="item.items.length" class="card-items">
+      <div v-if="set.items.length" class="card-items">
         <span v-for="i in items" :key="i.name" class="card-item-tag">
           {{ i.name }}
         </span>
 
-        <span v-if="item.items.length > 4" class="card-item-more">
-          +{{ item.items.length - 4 }}
+        <span v-if="set.items.length > 4" class="card-item-more">
+          +{{ set.items.length - 4 }}
         </span>
       </div>
     </div>
 
-    <div v-if="item.items.length" class="card-cost-row">
+    <div v-if="set.items.length" class="card-cost-row">
       <div v-if="monthly > 0" class="card-cost-item card-cost-monthly">
         <div class="card-cost-val">
           {{ Math.round(monthly).toLocaleString('ru') }} ₽
@@ -97,7 +96,7 @@ const totalCost = computed(() => {
       <div class="card-cost-sep" />
 
       <div class="card-cost-item">
-        <div class="card-cost-val">{{ item.items.length }}</div>
+        <div class="card-cost-val">{{ set.items.length }}</div>
         <div class="card-cost-lbl">позиций</div>
       </div>
 
@@ -108,12 +107,12 @@ const totalCost = computed(() => {
         <div class="card-cost-lbl">общая стоимость</div>
       </div>
 
-      <template v-if="!item.isPrivate">
+      <template v-if="!set.isPrivate">
         <div class="card-cost-sep" />
 
         <div class="card-cost-item">
           <div class="card-cost-val">
-            {{ (item.usersCount || 0).toLocaleString('ru') }}
+            {{ (set.usersCount || 0).toLocaleString('ru') }}
           </div>
 
           <div class="card-cost-lbl">подписчиков</div>
@@ -122,9 +121,9 @@ const totalCost = computed(() => {
     </div>
 
     <div class="card-bottom">
-      <template v-if="!item.isPrivate">
+      <template v-if="!set.isPrivate">
         <AppLikeButton
-          :count="item.likesCount"
+          :count="set.likesCount"
           :is-liked="isReactedAsLike"
           @toggle="onToggleLike"
         />
@@ -145,7 +144,7 @@ const totalCost = computed(() => {
             />
           </svg>
 
-          {{ item.commentsCount > 0 ? item.commentsCount : '' }}
+          {{ set.commentsCount > 0 ? set.commentsCount : '' }}
         </button>
 
         <AppDislikeButton
