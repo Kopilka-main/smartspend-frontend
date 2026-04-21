@@ -39,12 +39,12 @@ watch(finance, (value) => {
   form.value.creditMonths = value.creditMonths
   form.value.capital = value.capital
 
-  // @ts-expect-error
+  // @ts-expect-error Form value exists here
   currentValue.value = form.value[current.value.id]
 })
 
 watch(step, () => {
-  // @ts-expect-error
+  // @ts-expect-error Form value exists here
   currentValue.value = form.value[current.value.id]
 })
 
@@ -128,7 +128,7 @@ const onBack = () => {
 const onNext = () => {
   if (!isValid.value) return
 
-  // @ts-expect-error
+  // @ts-expect-error Form value exists here
   form.value[current.value.id] = currentValue.value
 
   if (step.value < steps.value.length - 1) {
