@@ -2,8 +2,8 @@
 import { useCurrentUser } from '~/composables/useCurrentUser'
 
 import ProfileFinance from '~/features/profile/components/sections/ProfileFinance.vue'
-import ProfileEnvelopes from '~/features/profile/components/sections/ProfileEnvelopes.vue'
 import ProfilePassiveIncome from '~/features/profile/components/sections/ProfilePassiveIncome.vue'
+import ProfileEnvelopes from '~/features/profile/components/sections/ProfileEnvelopes.vue'
 
 definePageMeta({
   layout: 'dashboard',
@@ -17,7 +17,7 @@ useHead({
   title: 'Профиль'
 })
 
-const { currentUser } = useCurrentUser()
+const { displayName } = useCurrentUser()
 </script>
 
 <template>
@@ -28,15 +28,15 @@ const { currentUser } = useCurrentUser()
           class="entry-title"
           :style="{ display: 'flex', alignItems: 'center', gap: '10px' }"
         >
-          Привет, {{ currentUser?.displayName }}
+          Привет, {{ displayName }}
         </div>
       </div>
     </div>
 
     <ProfileFinance />
 
-    <!--    <ProfilePassiveIncome />-->
+    <ProfilePassiveIncome />
 
-    <!--    <ProfileEnvelopes />-->
+    <ProfileEnvelopes />
   </main>
 </template>

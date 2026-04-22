@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useAddToEnvelope } from '~/features/sets/queries/useAddToEnvelope'
 import { useRemoveFromEnvelope } from '~/features/sets/queries/useRemoveFromEnvelope'
-import { useEnvelopes } from '~/features/sets/queries/useEnvelopes'
+import { useFetchEnvelopes } from '~/features/sets/queries/useFetchEnvelopes'
 
 const route = useRoute()
 
-const { data } = useEnvelopes()
+const { data } = useFetchEnvelopes()
 const { mutate: addToEnvelopeMutation } = useAddToEnvelope(
   route.params.id as string
 )

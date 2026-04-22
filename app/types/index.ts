@@ -113,8 +113,11 @@ export type EnvelopeItem = {
   name: string
   period: any
   setId: string
+  paused: boolean
   updatedAt: Date
   userId: string
+  source: string
+  description: string
 }
 
 export type SetComment = {
@@ -267,4 +270,14 @@ export type Finance = {
   capital: number
   emoRate: string
   updatedAt: Date | null
+}
+
+export type BudgetGroupItem = {
+  id: string
+  label: string
+  total: number | null
+  pct: number | null
+  rows: { label: string; value: number | string }[]
+  hint?: string | null
+  hintType?: string
 }

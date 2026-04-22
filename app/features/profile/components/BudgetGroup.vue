@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import type { BudgetGroupItem } from '~/types'
+
 type BudgetGroupProps = {
-  group: any
+  group: BudgetGroupItem
 }
 
-defineProps<BudgetGroupProps>()
+const props = defineProps<BudgetGroupProps>()
 
 const isOpened = ref(false)
 const isDismissed = ref(false)
@@ -11,7 +13,10 @@ const isDismissed = ref(false)
 
 <template>
   <div>
-    <div :class="`bl-group-header collapsible${isOpened ? ' open' : ''}`">
+    <div
+      :class="`bl-group-header collapsible${isOpened ? ' open' : ''}`"
+      @click="isOpened = !isOpened"
+    >
       <span class="bl-group-chevron">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <path
@@ -40,11 +45,11 @@ const isDismissed = ref(false)
     </div>
 
     <div v-if="isOpened" class="bl-group-rows">
-      <div v-for="(row, index) in group.rows" :key="index" class="bl-row sub">
+      <div v-for="row in group.rows" :key="row.label" class="bl-row sub">
         <span class="bl-label">{{ row.label }}</span>
 
         <span class="bl-value">
-          −{{ Math.abs(row.value).toLocaleString('ru') }} ₽
+          −{{ Math.abs(row.value as number).toLocaleString('ru') }} ₽
         </span>
       </div>
 

@@ -1,7 +1,7 @@
 import { useQuery } from '@pinia/colada'
 import type { EnvelopeItem } from '~/types'
 
-export const useEnvelopes = () => {
+export const useFetchEnvelopes = () => {
   const { $api } = useNuxtApp()
 
   return useQuery({

@@ -7,7 +7,12 @@ export const useCurrentUser = () => {
     return data.value ? (data.value as User) : null
   })
 
+  const displayName = computed(() => {
+    return currentUser.value ? currentUser.value.displayName : ''
+  })
+
   return {
-    currentUser
+    currentUser,
+    displayName
   }
 }

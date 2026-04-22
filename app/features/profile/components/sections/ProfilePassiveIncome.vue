@@ -1,30 +1,14 @@
 <script setup lang="ts">
-import { useCurrentUser } from '~/composables/useCurrentUser'
+import { useFinance } from '~/features/profile/composables/useFinance'
+import { useEmoRate } from '~/features/profile/composables/useEmoRate'
+
+import ProfileForecastRow from '~/features/profile/components/ProfileForecastRow.vue'
 
 const router = useRouter()
-const { currentUser } = useCurrentUser()
-
-const capital = ref(0)
-const emoRate = ref(0.04)
-const emoMonthly = ref(0)
+const { emoRate, emoMonthly, emoRateFormatted, onChangeEmoRate } = useEmoRate()
+const { finance, savings } = useFinance()
 
 const INDICES = [0, 1, 2, 4, 6, 9]
-
-const YEAR_OFFSETS = [1, 2, 3, 5, 7, 10]
-
-const grandTotal = computed(() => {
-  return 0
-  // return CATEGORIES.reduce((sum, cat) => {
-  //   const envAmt = (envelopes[cat.id] || [])
-  //     .filter((x) => !x.paused)
-  //     .reduce((s, x) => s + x.amount, 0)
-  //   const personalAmt = (personalByCat[cat.id] || []).reduce(
-  //     (s, i) => s + calcItemMonthly(i),
-  //     0
-  //   )
-  //   return sum + envAmt + personalAmt
-  // }, 0)
-})
 
 const BASE_RETURN = 0.04
 
@@ -92,27 +76,6 @@ const findSavingsCeiling = (
   return null
 }
 
-const totalExpenses = computed(() => {
-  return finance.value.housing + finance.value.credit + grandTotal.value
-})
-
-const savings = computed(() => {
-  return finance.value.income - totalExpenses.value
-})
-
-const finance = computed(() => {
-  return currentUser.value
-    ? currentUser.value.finance
-    : {
-        income: 0,
-        housing: 0,
-        credit: 0,
-        creditMonths: 0,
-        capital: 0,
-        emoRate: 0
-      }
-})
-
 const pts = computed(() => {
   return calcSavings(
     savings.value,
@@ -130,19 +93,6 @@ const rows = computed(() => {
 const maxAbs = rows.value.length
   ? Math.max(...rows.value.map((r) => Math.abs(r.cap)), 1)
   : 1
-
-const curYear = new Date().getFullYear()
-
-const fmtM = (v: number) => {
-  const abs = Math.abs(v)
-  const str = `₽${abs.toLocaleString('ru')}`
-
-  return v < 0 ? `−${str}` : str
-}
-
-const onChangeEmoRate = (event: any) => {
-  emoRate.value = Number(event.target.value) / 100
-}
 
 const ceiling = computed(() => {
   return findSavingsCeiling(
@@ -183,6 +133,7 @@ const yrsLabel = computed(() => {
     <div class="section-heading">
       <div>
         <span class="section-title">Пассивный доход</span>
+
         <div class="section-subtitle">
           Сумма, которую можно тратить не затрагивая накопления
         </div>
@@ -192,7 +143,9 @@ const yrsLabel = computed(() => {
     <div class="emo-inner">
       <div class="emo-stats-card">
         <div class="emo-stat">
-          <div class="emo-stat-num">₽{{ capital.toLocaleString('ru') }}</div>
+          <div class="emo-stat-num">
+            ₽{{ finance.capital.toLocaleString('ru') }}
+          </div>
           <div class="emo-stat-label">текущий капитал</div>
         </div>
 
@@ -239,12 +192,12 @@ const yrsLabel = computed(() => {
 
                 <input
                   type="range"
-                  :min="0"
-                  :max="25"
-                  :step="1"
+                  min="0"
+                  max="25"
+                  step="1"
+                  :value="emoRateFormatted"
                   class="emo-slider-input"
-                  :value="Math.round(emoRate * 100)"
-                  @change="onChangeEmoRate"
+                  @change="onChangeEmoRate(($event.target as any).value)"
                 />
               </div>
             </div>
@@ -267,34 +220,13 @@ const yrsLabel = computed(() => {
                 </span>
               </div>
 
-              <div
+              <ProfileForecastRow
                 v-for="(row, index) in rows"
                 :key="index"
-                class="forecast-row"
-              >
-                <span class="forecast-year">
-                  {{ curYear + (YEAR_OFFSETS[index] as number) }}
-                </span>
-
-                <div class="forecast-bar-track">
-                  <div
-                    :class="`forecast-bar-fill${row.cap < 0 ? ' forecast-bar-fill--neg' : ''}`"
-                    :style="{
-                      width: `${Math.round((Math.abs(row.cap) / maxAbs) * 100)}%`
-                    }"
-                  />
-                </div>
-
-                <span
-                  :class="`forecast-val${row.cap < 0 ? ' forecast-val--neg' : ''}`"
-                >
-                  {{ fmtM(row.cap) }}
-                </span>
-
-                <span class="forecast-emo">
-                  {{ row.cap > 0 ? fmtM(row.emo) : '—' }}
-                </span>
-              </div>
+                :row="row"
+                :max-abs="maxAbs"
+                :index="index"
+              />
             </div>
 
             <div v-if="!ceiling" class="savings-ceiling">

@@ -18,7 +18,9 @@ defineProps<SetAuthorChipProps>()
 
       <span class="author-chip-meta">
         <span class="author-name-inline">{{ name }}</span>
-        <span class="author-chip-date">{{ formatDate(date, 'PP') }}</span>
+        <span v-if="date" class="author-chip-date">
+          {{ formatDate(date, 'PP') }}
+        </span>
       </span>
     </button>
   </div>
