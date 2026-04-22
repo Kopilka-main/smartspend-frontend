@@ -5,11 +5,17 @@ type SetArticleItemCardProps = {
   article: ArticleDetails
 }
 
-defineProps<SetArticleItemCardProps>()
+const props = defineProps<SetArticleItemCardProps>()
+
+const router = useRouter()
+
+const onSwitchToArticle = () => {
+  router.push(`/articles/${props.article.id}`)
+}
 </script>
 
 <template>
-  <div class="sd-art-grid-card">
+  <div class="sd-art-grid-card" @click="onSwitchToArticle">
     <div class="sd-art-grid-title">{{ article.title }}</div>
 
     <div class="sd-art-grid-preview">{{ article.preview }}</div>

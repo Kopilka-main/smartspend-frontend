@@ -1,26 +1,28 @@
 <script setup lang="ts">
+import { useSet } from '~/features/sets/composables/useSet'
 import { calculateMonthlyPrice } from '~/features/sets/utils/calculateMonthlyPrice'
-import type { SetItem } from '~/types'
 
 import SetItemsTableRow from './SetItemsTableRow.vue'
 
 type SetItemsTableProps = {
-  items: SetItem[]
-  isConsumable: boolean
   scale: number
 }
 
 const props = defineProps<SetItemsTableProps>()
 
+const route = useRoute()
+
+const { set, isConsumable } = useSet(route.params.id as string)
+
 const totalMonthly = computed(() => {
-  return props.items.reduce(
+  return set.value?.items.reduce(
     (s, i) => s + calculateMonthlyPrice(i, props.scale),
     0
   )
 })
 
 const totalPrice = computed(() => {
-  return props.items.reduce(
+  return set.value?.items.reduce(
     (s, i) => s + Math.round(i.basePrice * props.scale * (i.qty as number)),
     0
   )
@@ -41,7 +43,7 @@ const totalPrice = computed(() => {
 
     <tbody>
       <SetItemsTableRow
-        v-for="item in items"
+        v-for="item in set?.items"
         :key="item.id"
         :item="item"
         :scale="scale"

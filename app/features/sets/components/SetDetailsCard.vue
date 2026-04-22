@@ -1,341 +1,258 @@
 <script setup lang="ts">
-import { useQueryCache } from '@pinia/colada'
-import { useCurrentUser } from '~/composables/useCurrentUser'
-import { formatDate } from '~/utils/formatDate'
-import { formatSource } from '~/features/sets/utils/formatSource'
-import { formatType } from '~/features/sets/utils/formatType'
-import { useAddToEnvelope } from '~/features/sets/queries/useAddToEnvelope'
-import { useRemoveFromEnvelope } from '~/features/sets/queries/useRemoveFromEnvelope'
-import { useEnvelopes } from '~/features/sets/queries/useEnvelopes'
-import { useUpdateReaction } from '~/queries/useUpdateReaction'
-import { useReactions } from '~/queries/useReactions'
+import { useSet } from '~/features/sets/composables/useSet'
 
-import type { CustomSetDetails } from '~/types'
+import AppLikeButton from '~/components/ui/AppLikeButton.vue'
+import SetItemsTable from '~/features/sets/components/set-items-table/SetItemsTable.vue'
+import AppDislikeButton from '~/components/ui/AppDislikeButton.vue'
+import SetAuthorChip from '~/features/sets/components/SetAuthorChip.vue'
+import SetAddInventory from '~/features/sets/components/SetAddInventory.vue'
 
-type SetDetailsCardProps = {
-  item: CustomSetDetails | null
-}
+const route = useRoute()
 
-const props = defineProps<SetDetailsCardProps>()
+const { set, title, isPersonal } = useSet(route.params.id as string)
 
-const { currentUser } = useCurrentUser()
-const queryCache = useQueryCache()
+const isEditMode = ref(false)
+const scale = ref(1.0)
+const isAboutVisible = ref(false)
+const isPaused = ref(false)
+const allArticles = ref([])
 
-const source = computed(() => {
-  return formatSource(props.item?.source as string)
+const { isReactedAsDislike, isReactedAsLike, onToggleDislike, onToggleLike } =
+  useItemReaction(route.params.id as string, 'set')
+
+const color = computed(() => {
+  return set.value?.color || '#4E8268'
 })
 
-const type = computed(() => {
-  return formatType(props.item?.setType as string)
+const isSmartSpend = computed(() => {
+  return set.value?.source === 'smartspend'
 })
 
-const { data: envelopes } = useEnvelopes()
-
-const isInEnvelope = computed(() => {
-  if (envelopes.value) {
-    return envelopes.value.data.find((item) => item.setId === props.item?.id)
-  }
-
-  return false
+const isDefault = computed(() => {
+  return true
 })
-
-const addToEnvelope = useAddToEnvelope(props.item?.id as string)
-const removeFromEnvelope = useRemoveFromEnvelope(props.item?.id as string)
-
-const { data: reactionsData } = useReactions()
-const updateReaction = useUpdateReaction(() => {
-  queryCache.invalidateQueries({ key: ['reactions'] })
-})
-
-const reactions = computed(() => {
-  return reactionsData.value
-    ? reactionsData.value.data.filter(
-        (reaction) => reaction.targetType === 'set'
-      )
-    : []
-})
-
-const isReactedAsLike = computed(() => {
-  return reactions.value.find(
-    (reaction) =>
-      reaction.type === 'like' &&
-      reaction.userId === currentUser.value?.id &&
-      reaction.targetId === (props.item?.id.toString() as string)
-  )
-})
-
-const isReactedAsDislike = computed(() => {
-  return reactions.value.find(
-    (reaction) =>
-      reaction.type === 'dislike' &&
-      reaction.userId === currentUser.value?.id &&
-      reaction.targetId === (props.item?.id.toString() as string)
-  )
-})
-
-const onToggleLike = () => {
-  updateReaction.mutate({
-    targetType: 'set',
-    targetId: props.item?.id.toString() as string,
-    type: 'like'
-  })
-}
-
-const onToggleDislike = () => {
-  updateReaction.mutate({
-    targetType: 'set',
-    targetId: props.item?.id.toString() as string,
-    type: 'dislike'
-  })
-}
 </script>
 
 <template>
-  <div
-    id="sp-sd-hero"
-    class="overflow-hidden rounded-16 bg-surface shadow-main"
-  >
-    <div class="h-4 bg-[rgb(125,175,146)]" aria-hidden="true"></div>
-    <div class="px-32 py-28">
-      <div class="mb-10 flex flex-wrap items-center gap-5">
-        <span
-          class="whitespace-nowrap rounded-5 bg-accent-green-light px-7 py-2 text-10 font-semibold uppercase tracking-[0.04em] text-accent-green"
-        >
-          {{ source }}
-        </span>
-
-        <span
-          class="whitespace-nowrap rounded-5 border border-accent-green-border bg-accent-green-light px-7 py-2 text-10 font-semibold tracking-[0.03em] text-accent-green"
-        >
-          {{ type }}
-        </span>
-
-        <!--        <span-->
-        <!--          class="inline-flex items-center gap-4 whitespace-nowrap rounded-5 border border-[#E8D080] bg-[#FFF8E6] px-7 py-2 text-10 font-semibold uppercase tracking-[0.03em] text-[#9A6800]"-->
-        <!--        >-->
-        <!--          <svg-->
-        <!--            width="9"-->
-        <!--            height="9"-->
-        <!--            fill="none"-->
-        <!--            stroke="currentColor"-->
-        <!--            viewBox="0 0 24 24"-->
-        <!--            stroke-width="2.5"-->
-        <!--            stroke-linecap="round"-->
-        <!--            stroke-linejoin="round"-->
-        <!--            class="shrink-0"-->
-        <!--          >-->
-        <!--            <path d="M12 20h9"></path>-->
-        <!--            <path-->
-        <!--              d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"-->
-        <!--            ></path>-->
-        <!--          </svg>-->
-        <!--          Под меня-->
-        <!--        </span>-->
+  <div id="sp-sd-hero" class="hero-card">
+    <div class="hero-body">
+      <div class="hero-body-main">
+        <div class="hero-title">{{ title }}</div>
+        <div class="hero-desc">{{ set?.description }}</div>
       </div>
 
-      <div
-        class="mb-6 flex items-center gap-8 text-24 font-bold leading-[1.1] tracking-[-0.03em] text-text"
-      >
-        {{ item?.title }}
+      <div v-if="!isPersonal" class="hero-body-actions">
+        <SetAddInventory />
+      </div>
+    </div>
 
-        <button
-          type="button"
-          class="inline-flex h-22 w-22 shrink-0 cursor-pointer items-center justify-center rounded-full border-[0.15rem] border-border bg-surface-2 font-secondary text-12 font-bold leading-none text-text-3 transition-colors hover:border-accent-green hover:bg-accent-green-light hover:text-accent-green"
-          title="Как устроена страница"
-        >
-          ?
-        </button>
+    <div id="sp-sd-items" class="sd-section-header">
+      <div class="sd-section-title">
+        Состав набора
+
+        <span class="sd-section-count"> {{ set?.items.length }} позиций </span>
       </div>
 
-      <div class="text-14 leading-normal tracking-[-0.01em] text-text-2">
-        {{ item?.description }}
-      </div>
-
-      <div
-        class="mt-20 grid grid-cols-2 gap-12 sm:flex items-start border-t border-border pt-20"
-      >
-        <div
-          class="flex min-w-0 flex-1 flex-col gap-3 border-r border-border py-0 pl-0 pr-20"
-        >
-          <div
-            class="font-secondary text-20 font-medium leading-none tracking-[-0.02em] text-accent-green"
-          >
-            {{ item?.amount }} ₽
-          </div>
-
-          <div class="text-11 tracking-[-0.01em] text-text-3">
-            в месяц (амортизация)
-          </div>
-        </div>
-
-        <div
-          class="flex min-w-0 flex-1 flex-col gap-3 border-r border-border sm:px-20"
-        >
-          <div
-            class="font-secondary text-20 font-medium leading-none tracking-[-0.02em] text-accent-green"
-          >
-            {{ item?.items.length }}
-          </div>
-
-          <div class="text-11 tracking-[-0.01em] text-text-3">
-            позиций в наборе
-          </div>
-        </div>
-        <div
-          class="flex min-w-0 flex-1 flex-col gap-3 border-r border-border sm:px-20"
-        >
-          <div
-            class="font-secondary text-20 font-medium leading-none tracking-[-0.02em] text-accent-green"
-          >
-            {{ item?.usersCount }}
-          </div>
-
-          <div class="text-11 tracking-[-0.01em] text-text-3">
-            пользователей добавили
-          </div>
-        </div>
-
-        <div class="flex min-w-0 flex-1 flex-col gap-3 py-0 sm:pl-20 pr-0">
-          <div
-            class="font-secondary text-15 font-medium leading-none tracking-[-0.02em] text-accent-green"
-          >
-            {{ formatDate(item?.createdAt as Date, 'PPP') }}
-          </div>
-
-          <div class="text-11 tracking-[-0.01em] text-text-3">
-            дата добавления
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-20 flex flex-wrap items-center gap-8">
-        <button
-          v-if="!isInEnvelope"
-          id="sp-sd-add"
-          type="button"
-          class="inline-flex cursor-pointer items-center gap-7 rounded-10 border-0 bg-text px-20 py-10 text-14 font-semibold tracking-[-0.01em] text-surface transition-opacity hover:opacity-[0.85]"
-          @click="addToEnvelope.mutate()"
-        >
+      <div class="sd-section-actions">
+        <button v-if="!isDefault" class="sd-btn-sm">
           <svg
-            width="14"
-            height="14"
+            width="11"
+            height="11"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="shrink-0"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <path d="M12 5v14M5 12h14"></path>
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
           </svg>
 
-          Добавить в конверт
+          Сбросить
         </button>
 
-        <template v-else>
-          <button
-            id="sp-sd-added"
-            type="button"
-            class="inline-flex cursor-default items-center gap-7 rounded-10 border-0 bg-status-ok px-20 py-10 text-14 font-semibold tracking-[-0.01em] text-surface opacity-70 shadow-app-sm"
-          >
+        <button :class="`sd-btn-sm${isEditMode ? ' active' : ''}`">
+          <template v-if="isEditMode">
             <svg
-              width="14"
-              height="14"
+              width="11"
+              height="11"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="shrink-0"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <polyline points="20 6 9 17 4 12"></polyline>
+              <polyline points="20 6 9 17 4 12" />
             </svg>
 
-            Добавлено в конверт
-          </button>
+            Готово
+          </template>
 
-          <button
-            type="button"
-            class="inline-flex items-center gap-6 rounded-10 border border-border bg-transparent px-16 py-10 text-13 font-medium tracking-[-0.01em] text-text-3 transition-colors hover:border-[#D08080] hover:bg-[#FFF5F5] hover:text-[#C05050]"
-            @click="removeFromEnvelope.mutate()"
-          >
-            <svg
-              width="13"
-              height="13"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="shrink-0"
-            >
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
-              <path d="M10 11v6M14 11v6"></path>
-              <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
-            </svg>
-
-            Удалить из инвентаря
-          </button>
-        </template>
-
-        <button
-          type="button"
-          class="inline-flex items-center gap-6 rounded-10 border border-accent-green-border px-16 py-10 text-13 font-medium text-accent-green transition-colors hover:border-accent-green hover:text-accent-green"
-          :class="{ 'bg-accent-green-light!': isReactedAsLike }"
-          @click="onToggleLike"
-        >
-          <svg
-            width="14"
-            height="14"
-            :fill="isReactedAsLike ? 'currentColor' : 'none'"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="shrink-0"
-          >
-            <path
-              d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"
-            ></path>
-            <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-          </svg>
-
-          Нравится
-        </button>
-
-        <button
-          type="button"
-          class="inline-flex items-center gap-6 rounded-10 border border-accent-green-border px-16 py-10 text-13 font-medium text-accent-green transition-colors hover:border-accent-green hover:text-accent-green"
-          :class="{ 'bg-accent-green-light!': isReactedAsDislike }"
-          @click="onToggleDislike"
-        >
-          <svg
-            width="14"
-            height="14"
-            :fill="isReactedAsDislike ? 'currentColor' : 'none'"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="shrink-0"
-          >
-            <path
-              d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"
-            ></path>
-            <path
-              d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"
-            ></path>
-          </svg>
-
-          Не нравится
+          <template v-else>
+            {{ isPersonal ? 'Редактировать' : 'Изменить набор' }}
+          </template>
         </button>
       </div>
+    </div>
+
+    <div v-if="isEditMode" class="sd-scale-row">
+      <div>
+        <div class="sd-scale-title">Масштаб набора</div>
+      </div>
+
+      <div class="sd-scale-right">
+        <span class="sd-scale-val">×{{ scale.toFixed(2) }}</span>
+
+        <div class="sd-scale-stepper">
+          <button class="sd-scale-btn">−</button>
+          <button class="sd-scale-btn">+</button>
+        </div>
+      </div>
+    </div>
+
+    <SetItemsTable :scale="scale" />
+
+    <div class="sd-about-wrap">
+      <div
+        :class="`content-body sd-about-body${isAboutVisible ? '' : ' sd-about-collapsed'}`"
+      >
+        <h2>{{ set?.aboutTitle }}</h2>
+
+        <p>{{ set?.aboutText }}</p>
+      </div>
+    </div>
+
+    <div class="art-meta-row">
+      <SetAuthorChip
+        :name="`${isSmartSpend ? 'SmartSpend' : set?.author?.displayName}`"
+        :initials="`${isSmartSpend ? 'SS' : set?.author?.initials}`"
+        :date="set?.createdAt as Date"
+        :color="`linear-gradient(135deg, ${color}, #B8A0C8)`"
+      />
+
+      <div v-if="!isPersonal && set?.author" class="art-meta-sep" />
+
+      <div v-if="isPersonal" class="sd-personal-actions">
+        <button :class="`sd-personal-state${isPaused ? ' paused' : ''}`">
+          <template v-if="isPaused">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+
+            Запустить
+          </template>
+
+          <template v-else>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+
+            На паузу
+          </template>
+        </button>
+
+        <button class="sd-personal-delete">
+          <svg
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14H6L5 6" />
+            <path d="M10 11v6M14 11v6" />
+            <path d="M9 6V4h6v2" />
+          </svg>
+        </button>
+      </div>
+
+      <template v-if="!isPersonal && set?.usersCount">
+        <div class="art-meta-sep" />
+
+        <div class="fa-action-stat">
+          <svg
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            strokeWidth="1.8"
+          >
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 00-3-3.87" />
+            <path d="M16 3.13a4 4 0 010 7.75" />
+          </svg>
+
+          {{ set?.usersCount || 0 }}
+        </div>
+      </template>
+
+      <AppLikeButton
+        v-if="!isPersonal"
+        :count="set?.likesCount || 0"
+        :is-liked="isReactedAsLike"
+        @toggle="onToggleLike"
+      />
+
+      <div
+        v-if="!isPersonal && set?.commentsCount"
+        class="fa-action-stat fa-action-stat--link"
+      >
+        <svg
+          width="13"
+          height="13"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          strokeWidth="1.8"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+          />
+        </svg>
+
+        {{ set?.commentsCount || 0 }}
+      </div>
+
+      <div
+        v-if="!isPersonal && allArticles.length > 0"
+        class="fa-action-stat fa-action-stat--link"
+      >
+        <svg
+          width="13"
+          height="13"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path
+            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+          />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+        </svg>
+
+        {{ allArticles.length }}
+      </div>
+
+      <AppDislikeButton
+        v-if="!isPersonal"
+        :is-disliked="isReactedAsDislike"
+        @toggle="onToggleDislike"
+      />
     </div>
   </div>
 </template>

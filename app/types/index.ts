@@ -74,6 +74,7 @@ export type CustomSetDetails = {
   categoryId: string
   categoryName: string
   likesCount: number
+  commentsCount: number
   color: string
   createdAt: Date
   description: string

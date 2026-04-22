@@ -22,7 +22,7 @@ const onSubmitNote = () => {
 </script>
 
 <template>
-  <form class="sd-note-form" @submit="onSubmitNote">
+  <form class="sd-note-form" @submit.prevent="onSubmitNote">
     <input
       v-model="noteText"
       class="sd-note-input"

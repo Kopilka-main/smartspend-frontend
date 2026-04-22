@@ -17,7 +17,19 @@ const uniqueArticlesAuthors = computed(() => {
     return []
   }
 
-  return articles.value.map((article) => article.author)
+  const authors = articles.value.map((article) => article.author)
+
+  const result: any[] = []
+
+  authors.forEach((author) => {
+    const isExisting = !!result.find((item) => item.id === author.id)
+
+    if (isExisting) return
+
+    result.push(author)
+  })
+
+  return result
 })
 </script>
 
