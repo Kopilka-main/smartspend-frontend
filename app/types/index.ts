@@ -281,3 +281,89 @@ export type BudgetGroupItem = {
   hint?: string | null
   hintType?: string
 }
+
+export type Deposit = {
+  id: string
+  rates: number[]
+}
+
+export type Company = {
+  id: string
+  name: string
+  abbr: string
+  color: string
+  categoryId: string
+  categoryName: string
+  description: string
+  promoTypes: string[]
+}
+
+export type VoteHistoryItem = {
+  userId: string
+  vote: string
+  createdAt: Date
+}
+
+export type Author = {
+  id: string
+  displayName: string
+  username: string
+  initials: string
+  color: string
+  avatarUrl: string
+  followersCount: number
+  articlesCount: number
+  setsCount: number
+}
+
+export type PromoItem = {
+  id: number
+  type: string
+  companyId: string
+  categoryId: string
+  categoryName: string
+  authorId: string
+  author: Author
+  title: string
+  text: string
+  code: string
+  channel: string
+  url: string
+  sourceUrl: string
+  promoFilter: string
+  conditions: string[]
+  expiresAt: Date
+  votesUp: number
+  votesDown: number
+  commentsCount: number
+  myVote: string
+  voteHistory: VoteHistoryItem[]
+  isActive: boolean
+  createdAt: Date
+  company: Company
+}
+
+export type BankCardItem = {
+  id: string
+  bankName: string
+  bankAbbr: string
+  bankColor: string
+  bankTextColor: string
+  name: string
+  cardType: string
+  cashback: any
+  cashbackNote: string
+  graceDays: number
+  fee: number
+  feeBase: number
+  isSystemic: boolean
+  conditions: string[]
+  tags: string[]
+  bonusType: string
+  bonusSystem: string
+  bonusDesc: string
+  feeDesc: string
+  url: string
+  isActive: boolean
+  calcCashback: number
+}

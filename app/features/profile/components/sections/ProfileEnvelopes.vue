@@ -9,6 +9,7 @@ import ProfileCategoryCard from '~/features/profile/components/ProfileCategoryCa
 const FEDERAL_PM_2026 = 20644 // Прожиточный минимум РФ 2026, ₽/мес
 const SMART_SPEND_BASE = Math.round(FEDERAL_PM_2026 * 0.75) // 75% — конверты (без жилья ~25%)
 
+const router = useRouter()
 const { finance, grandTotal } = useFinance()
 const { emoMonthly } = useEmoRate()
 const { envelopes } = useEnvelopes()
@@ -299,7 +300,7 @@ const isBsOpened = ref(false)
       />
     </div>
 
-    <div id="sp-cards" class="profile-tool-row">
+    <div id="sp-cards" class="profile-tool-row" @click="router.push('/cards')">
       <div class="profile-tool-icon">
         <svg
           width="16"
