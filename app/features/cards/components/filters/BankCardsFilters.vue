@@ -1,23 +1,57 @@
 <script setup lang="ts">
 import { useBankCardFiltersModal } from '~/features/cards/composables/useBankCardFiltersModal'
 import { useBankCardSpendingModal } from '~/features/cards/composables/useBankCardSpendingModal'
+import { useSpending } from '~/features/cards/composables/useSpending'
 
-const hasSpending = ref(false)
-const totalSpending = ref(0)
-const totalActiveFilters = ref(0)
+const { spending } = useSpending()
 
 const sortModel = defineModel<string>('sort', { required: true })
+const banksModel = defineModel<string[]>('banks', { default: [] })
+const conditionsModel = defineModel<string[]>('conditions', { default: [] })
+const typesModel = defineModel<string[]>('types', { default: [] })
+
+const totalSpending = computed(() => {
+  let result = 0
+
+  Object.keys(spending.value).forEach((key) => {
+    if (spending.value[key]) {
+      result += Number(spending.value[key])
+    }
+  })
+
+  return result
+})
+
+const totalActiveFilters = computed(() => {
+  return (
+    banksModel.value.length +
+    conditionsModel.value.length +
+    typesModel.value.length
+  )
+})
 
 const spendingLabel = computed(() => {
-  return hasSpending.value
+  return totalSpending.value
     ? `${formatMoney(totalSpending.value)}/мес`
     : 'Указать'
 })
 
-const bankCardFiltersModal = useBankCardFiltersModal()
+const bankCardFiltersModal = useBankCardFiltersModal((payload) => {
+  banksModel.value = payload.banks
+  conditionsModel.value = payload.conditions
+  typesModel.value = payload.types
+})
+
 const bankCardSpendingModal = useBankCardSpendingModal()
 
 const onShowFiltersModal = () => {
+  bankCardFiltersModal.patchOptions({
+    attrs: {
+      banks: banksModel.value,
+      conditions: conditionsModel.value,
+      types: typesModel.value
+    }
+  })
   bankCardFiltersModal.open()
 }
 
@@ -33,7 +67,7 @@ const onShowSpendingModal = () => {
         <span class="dep-filter-label">Мои расходы</span>
 
         <button
-          :class="`crd-spend-btn${hasSpending ? ' filled' : ''}`"
+          :class="`crd-spend-btn${totalSpending > 0 ? ' filled' : ''}`"
           @click="onShowSpendingModal"
         >
           <svg

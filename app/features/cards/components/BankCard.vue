@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import AppAccordion from '~/components/ui/AppAccordion.vue'
-
 import { formatMoney } from '~/utils/formatMoney'
 import { useSpending } from '~/features/cards/composables/useSpending'
+import { useCategories } from '~/composables/useCategories'
+import { useBankCardSpendingModal } from '~/features/cards/composables/useBankCardSpendingModal'
 import type { BankCardItem } from '~/types'
+
+import AppAccordion from '~/components/ui/AppAccordion.vue'
 
 type BankCardProps = {
   card: BankCardItem
-  hasSpending: boolean
 }
 
 const props = defineProps<BankCardProps>()
 
-const { spending } = useSpending()
+const bankCardSpendingModal = useBankCardSpendingModal()
+const { spending, totalSpendingAmount } = useSpending()
+const { categories } = useCategories()
 
 const isOpened = ref(false)
 
@@ -25,18 +28,22 @@ const tags = computed(() => {
 })
 
 const bonusValue = computed(() => {
-  return 0
+  return categories.value.reduce((total, category) => {
+    const rate =
+      props.card.cashback[category.id] ?? props.card.cashback.other ?? 0
 
-  // return SPEND_CATS.reduce((total, cat) => {
-  //   const rate = card.cashback[cat.id] ?? card.cashback.other ?? 0
-  //   return total + ((spending[cat.id] || 0) * rate) / 100
-  // }, 0)
+    return total + ((spending.value[category.id] || 0) * rate) / 100
+  }, 0)
 })
 
 const graceValue = computed(() => {
   if (!props.card.graceDays) return 0
 
-  const totalMonthly = 0 // SPEND_CATS.reduce((s, c) => s + (spending[c.id] || 0), 0)
+  let totalMonthly = 0
+
+  Object.keys(spending.value).forEach((key) => {
+    totalMonthly += Number(spending.value[key])
+  })
 
   return totalMonthly * 0.25 * (props.card.graceDays / 365)
 })
@@ -52,6 +59,10 @@ const bonusTypeLabel = computed(() => {
 const graceDaysLabel = computed(() => {
   return props.card.graceDays > 0 ? `${props.card.graceDays} дней` : 'нет'
 })
+
+const onShowSpendingModal = () => {
+  bankCardSpendingModal.open()
+}
 </script>
 
 <template>
@@ -76,7 +87,7 @@ const graceDaysLabel = computed(() => {
         </div>
 
         <div class="crd-card-pills">
-          <template v-if="hasSpending">
+          <template v-if="totalSpendingAmount > 0">
             <span class="crd-pill crd-pill-bonus">
               <svg
                 width="10"
@@ -105,7 +116,10 @@ const graceDaysLabel = computed(() => {
           </template>
 
           <template v-else>
-            <span class="crd-pill crd-pill-empty">
+            <span
+              class="crd-pill crd-pill-empty"
+              @click.stop="onShowSpendingModal"
+            >
               Укажи расходы → увидишь кешбэк
             </span>
           </template>
@@ -174,7 +188,7 @@ const graceDaysLabel = computed(() => {
         </div>
       </div>
 
-      <button v-if="!hasSpending" class="crd-fill-spend-btn">
+      <button v-if="totalSpendingAmount === 0" class="crd-fill-spend-btn">
         <svg
           width="13"
           height="13"

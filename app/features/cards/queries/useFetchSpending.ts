@@ -6,7 +6,9 @@ export const useFetchSpending = () => {
   return useQuery({
     key: ['spending'],
     query: async () => {
-      return await $api<{ data: any }>('/cards/spending', { method: 'GET' })
+      return await $api<{ data: Record<string, number> }>('/cards/spending', {
+        method: 'GET'
+      })
     }
   })
 }

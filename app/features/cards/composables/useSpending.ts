@@ -4,8 +4,18 @@ export const useSpending = () => {
   const { data } = useFetchSpending()
 
   const spending = computed(() => {
-    return data.value ? data.value.data : []
+    return data.value ? data.value.data : {}
   })
 
-  return { spending }
+  const totalSpendingAmount = computed(() => {
+    let result = 0
+
+    Object.keys(spending.value).forEach((key) => {
+      result += Number(spending.value[key])
+    })
+
+    return result
+  })
+
+  return { spending, totalSpendingAmount }
 }

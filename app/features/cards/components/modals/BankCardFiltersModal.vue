@@ -3,8 +3,24 @@ import { useBanks } from '~/features/cards/composables/useBanks'
 
 import AppModal from '~/components/layout/AppModal.vue'
 
+type BankCardFiltersModalProps = {
+  banks?: string[]
+  types?: string[]
+  conditions?: string[]
+}
+
+const props = withDefaults(defineProps<BankCardFiltersModalProps>(), {
+  banks: () => [],
+  types: () => [],
+  conditions: () => []
+})
+
 const emit = defineEmits<{
   (e: 'close'): void
+  (
+    e: 'apply',
+    payload: { banks: string[]; types: string[]; conditions: string[] }
+  ): void
 }>()
 
 const isMyBanksActive = ref(false)
@@ -17,7 +33,7 @@ const onSelectMyBanks = () => {
   // select my banks
 }
 
-const { banks } = useBanks()
+const { banks: banksItems } = useBanks()
 const selectedBanks = ref<string[]>([])
 const isBankSelected = (bank: string) => {
   return selectedBanks.value.includes(bank)
@@ -90,7 +106,19 @@ const onReset = () => {
   selectedConditions.value = []
 }
 
-const onShowResults = () => {}
+const onShowResults = () => {
+  emit('apply', {
+    banks: selectedBanks.value,
+    types: selectedCardTypes.value,
+    conditions: selectedConditions.value
+  })
+}
+
+onMounted(() => {
+  selectedBanks.value = [...props.banks]
+  selectedConditions.value = [...props.conditions]
+  selectedCardTypes.value = [...props.types]
+})
 </script>
 
 <template>
@@ -150,7 +178,7 @@ const onShowResults = () => {}
 
           <div class="crd-fchips">
             <button
-              v-for="bank in banks"
+              v-for="bank in banksItems"
               :key="bank"
               :class="`crd-fchip${isBankSelected(bank) ? ' active' : ''}`"
               @click="onToggleSelectBank(bank)"

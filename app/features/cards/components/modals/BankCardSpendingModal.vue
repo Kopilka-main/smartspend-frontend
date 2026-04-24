@@ -13,42 +13,74 @@ const emit = defineEmits<{
 type SpendingCategory = {
   id: string
   name: string
-  value: string
+  value: number
 }
 
-const { mutate } = useUpdateSpending()
+const { mutate } = useUpdateSpending(() => {
+  emit('close')
+})
 const { envelopes } = useEnvelopes()
 const { categories } = useCategories()
 const { spending } = useSpending()
 
 const spendingCategories = ref<SpendingCategory[]>([])
 
-watchEffect(() => {
-  categories.value.forEach((category) => {
-    spendingCategories.value.push({
-      id: category.id,
-      name: category.name,
-      value: ''
+watch(
+  () => [categories.value, spending.value],
+  () => {
+    spendingCategories.value = categories.value.map((category) => {
+      let value = 0
+
+      if (category.id in spending.value) {
+        value = spending.value[category.id] || 0
+      }
+
+      return {
+        id: category.id,
+        name: category.name,
+        value
+      }
     })
-  })
+  },
+  {
+    immediate: true
+  }
+)
+
+const total = computed(() => {
+  return spendingCategories.value.reduce((acc, cur) => acc + cur.value, 0)
 })
 
-const total = ref(0)
+const onReset = () => {
+  spendingCategories.value = spendingCategories.value.map((category) => ({
+    ...category,
+    value: 0
+  }))
+}
 
-const onReset = () => {}
+const onLoadSpendingFromEnvelopes = () => {
+  spendingCategories.value = spendingCategories.value.map((category) => {
+    const envelopesWithCategory = envelopes.value.filter(
+      (envelope) => envelope.categoryId === category.id
+    )
 
-const onLoadSpendingFromEnvelopes = () => {}
+    return {
+      ...category,
+      value: envelopesWithCategory.reduce((acc, cur) => acc + cur.amount, 0)
+    }
+  })
+}
 
 const onApply = () => {
-  const result: any = {}
+  const spendingData: Record<string, number> = {}
 
   spendingCategories.value.forEach((category) => {
     if (category.value) {
-      result[category.id] = Number(category.value)
+      spendingData[category.id] = Number(category.value)
     }
   })
 
-  mutate({ spending: result })
+  mutate({ spending: spendingData })
 }
 </script>
 
@@ -65,7 +97,7 @@ const onApply = () => {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2.5"
+            stroke-width="2.5"
           >
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
@@ -90,7 +122,7 @@ const onApply = () => {
 
             <div class="crd-spend-input-wrap">
               <input
-                v-model="category.value"
+                v-model.number="category.value"
                 class="crd-spend-input"
                 type="text"
                 inputMode="numeric"

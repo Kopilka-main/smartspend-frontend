@@ -17,10 +17,13 @@ useHead({
 })
 
 const filters = ref({
-  sort: 'cashback_grace' // cashback / grace / cashback_grace
+  sort: 'cashback_grace',
+  banks: [],
+  types: [],
+  conditions: []
 })
 
-const { bankCards, isLoading } = useBankCards()
+const { bankCards, isLoading } = useBankCards(filters)
 </script>
 
 <template>
@@ -34,7 +37,7 @@ const { bankCards, isLoading } = useBankCards()
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
-        strokeWidth="2"
+        stroke-width="2"
       >
         <polyline points="9 18 15 12 9 6" />
       </svg>
@@ -42,7 +45,12 @@ const { bankCards, isLoading } = useBankCards()
       <span class="breadcrumb-current">Подбор банковской карты</span>
     </div>
 
-    <BankCardsFilters v-model:sort="filters.sort" />
+    <BankCardsFilters
+      v-model:sort="filters.sort"
+      v-model:banks="filters.banks"
+      v-model:types="filters.types"
+      v-model:conditions="filters.conditions"
+    />
 
     <div class="crd-list" id="sp-crd-list">
       <div v-if="bankCards.length === 0 && !isLoading" class="crd-empty">
@@ -50,12 +58,7 @@ const { bankCards, isLoading } = useBankCards()
       </div>
 
       <template v-else>
-        <BankCard
-          v-for="card in bankCards"
-          :key="card.id"
-          :card="card"
-          :has-spending="true"
-        />
+        <BankCard v-for="card in bankCards" :key="card.id" :card="card" />
       </template>
     </div>
 
