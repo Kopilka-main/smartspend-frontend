@@ -1,5 +1,37 @@
 <script setup lang="ts">
+import { useUpdateSettings } from '~/features/settings/queries/useUpdateSettings'
+import { useSettings } from '~/features/settings/composables/useSettings'
+
+const { mutate } = useUpdateSettings()
+const { settings } = useSettings()
+
 const timeZone = ref('Europe/Moscow')
+const location = ref('')
+
+watch(
+  () => settings.value,
+  () => {
+    timeZone.value = settings.value.timezone
+    location.value = settings.value.location
+  },
+  { immediate: true }
+)
+
+const onChangeTimeZone = (event: any) => {
+  timeZone.value = event.target.value
+
+  mutate({
+    timezone: timeZone.value
+  })
+}
+
+const onChangeLocation = (event: any) => {
+  location.value = event.target.value
+
+  mutate({
+    location: location.value
+  })
+}
 
 const timeZoneOptions = [
   {
@@ -47,17 +79,6 @@ const timeZoneOptions = [
     value: 'Asia/Kamchatka'
   }
 ]
-
-const positionOptions = [
-  {
-    groupLabel: 'Крупные города',
-    items: []
-  },
-  {
-    groupLabel: 'Области и регионы',
-    items: []
-  }
-]
 </script>
 
 <template>
@@ -73,7 +94,11 @@ const positionOptions = [
         </div>
       </div>
 
-      <select v-model="timeZone" class="settings-tz-select">
+      <select
+        :value="timeZone"
+        @change="onChangeTimeZone"
+        class="settings-tz-select"
+      >
         <option
           v-for="option in timeZoneOptions"
           :key="option.label"
@@ -93,7 +118,11 @@ const positionOptions = [
         </div>
       </div>
 
-      <select class="settings-tz-select">
+      <select
+        :value="location"
+        @change="onChangeLocation"
+        class="settings-tz-select"
+      >
         <option value="">Не указано</option>
 
         <optgroup label="Крупные города">

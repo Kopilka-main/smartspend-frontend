@@ -21,6 +21,22 @@ export type User = {
   }
 }
 
+export type UserProfile = {
+  id: string
+  displayName: string
+  username: string
+  initials: string
+  color: string
+  bio: string
+  avatarUrl: string
+  joinedAt: Date
+  followersCount: number
+  followingCount: number
+  articlesCount: number
+  setsCount: number
+  isFollowing: boolean
+}
+
 export type SetCategory = {
   id: string
   name: string
@@ -282,9 +298,44 @@ export type BudgetGroupItem = {
   hintType?: string
 }
 
+export type Tariff = {
+  id: string
+  name: string
+  cost: number
+  conditions: string
+  benefits: string[]
+  url: string
+}
+
 export type Deposit = {
   id: string
-  rates: number[]
+  bankName: string
+  bankColor: string
+  bankTextColor: string
+  bankAbbr: string
+  name: string
+  rates: any
+  minAmount: number
+  maxAmount: number
+  replenishment: boolean
+  withdrawal: boolean
+  freq: string
+  isSystemic: boolean
+  conditions: string[]
+  tags: string[]
+  conditionsText: string
+  params: string
+  isActive: boolean
+  maxRate: number
+  calcIncome: number
+  calcTotal: number
+  tariff: Tariff
+}
+
+export type DepositChartRate = {
+  months: number
+  label: string
+  maxRate: number
 }
 
 export type Company = {
@@ -366,4 +417,18 @@ export type BankCardItem = {
   url: string
   isActive: boolean
   calcCashback: number
+}
+
+export type SettingsResponse = {
+  theme: string
+  timezone: string
+  location: string
+  notifyNewSets: boolean
+  notifyAuthorArticles: boolean
+  notifySubscriptions: boolean
+  notifySetChanges: boolean
+  notifyReminders: boolean
+  privacySets: string
+  privacyArticles: string
+  privacyProfile: string
 }

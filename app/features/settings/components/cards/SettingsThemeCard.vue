@@ -1,7 +1,29 @@
 <script setup lang="ts">
+import { useUpdateSettings } from '~/features/settings/queries/useUpdateSettings'
+import { useSettings } from '~/features/settings/composables/useSettings'
+
 import AppSwitch from '~/components/ui/inputs/AppSwitch.vue'
 
 const isDarkMode = ref(false)
+
+const { mutate } = useUpdateSettings()
+const { settings } = useSettings()
+
+watch(
+  () => settings.value.theme,
+  () => {
+    isDarkMode.value = settings.value.theme === 'dark'
+  },
+  {
+    immediate: true
+  }
+)
+
+const onUpdateDarkMode = (value: boolean) => {
+  mutate({
+    theme: value ? 'dark' : 'light'
+  })
+}
 </script>
 
 <template>
@@ -15,7 +37,10 @@ const isDarkMode = ref(false)
         <div class="settings-row-desc">Переключить оформление приложения</div>
       </div>
 
-      <AppSwitch v-model="isDarkMode" />
+      <AppSwitch
+        :model-value="isDarkMode"
+        @update:modelValue="onUpdateDarkMode"
+      />
     </div>
   </div>
 </template>

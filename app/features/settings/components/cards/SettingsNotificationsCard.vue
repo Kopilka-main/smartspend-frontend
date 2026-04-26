@@ -1,38 +1,75 @@
 <script setup lang="ts">
+import { useSettings } from '~/features/settings/composables/useSettings'
+import { useUpdateSettings } from '~/features/settings/queries/useUpdateSettings'
+
 import AppSwitch from '~/components/ui/inputs/AppSwitch.vue'
 
-const items = ref([
+const items = [
   {
-    key: 'newSets',
+    key: 'notifyNewSets',
     label: 'Новые наборы',
-    desc: 'Когда добавляются новые наборы в каталог',
-    value: false
+    desc: 'Когда добавляются новые наборы в каталог'
   },
   {
-    key: 'articles',
+    key: 'notifyAuthorArticles',
     label: 'Статьи от авторов',
-    desc: 'Когда выходят новые статьи',
-    value: false
+    desc: 'Когда выходят новые статьи'
   },
   {
-    key: 'authorUpdates',
+    key: 'notifySubscriptions',
     label: 'Обновления подписок',
-    desc: 'Уведомления о новых статьях и наборах у авторов, на которых вы подписаны',
-    value: false
+    desc: 'Уведомления о новых статьях и наборах у авторов, на которых вы подписаны'
   },
   {
-    key: 'setChanges',
+    key: 'notifySetChanges',
     label: 'Изменения в наборах',
-    desc: 'Уведомления об изменениях в наборах, которые у вас оформлены',
-    value: false
+    desc: 'Уведомления об изменениях в наборах, которые у вас оформлены'
   },
   {
-    key: 'reminders',
+    key: 'notifyReminders',
     label: 'Напоминания',
-    desc: 'Напоминания обновить инвентарь',
-    value: false
+    desc: 'Напоминания обновить инвентарь'
   }
-])
+]
+
+const form = ref({
+  notifyNewSets: false,
+  notifyAuthorArticles: false,
+  notifySubscriptions: false,
+  notifySetChanges: false,
+  notifyReminders: false
+})
+
+const { mutate } = useUpdateSettings()
+const { settings } = useSettings()
+
+watch(
+  () => settings.value,
+  () => {
+    form.value.notifyNewSets = settings.value.notifyNewSets
+    form.value.notifyAuthorArticles = settings.value.notifyAuthorArticles
+    form.value.notifySubscriptions = settings.value.notifySubscriptions
+    form.value.notifySetChanges = settings.value.notifySetChanges
+    form.value.notifyReminders = settings.value.notifyReminders
+  },
+  {
+    immediate: true
+  }
+)
+
+const getFormValue = (key: string) => {
+  // @ts-expect-error Expect boolean value
+  return form.value[key]
+}
+
+const onUpdate = (value: boolean, key: string) => {
+  // @ts-expect-error Expect boolean value
+  form.value[key] = value
+
+  mutate({
+    ...form.value
+  })
+}
 </script>
 
 <template>
@@ -45,7 +82,10 @@ const items = ref([
         <div class="settings-row-desc">{{ item.desc }}</div>
       </div>
 
-      <AppSwitch v-model="item.value" />
+      <AppSwitch
+        :model-value="getFormValue(item.key)"
+        @update:modelValue="onUpdate($event, item.key)"
+      />
     </div>
   </div>
 </template>

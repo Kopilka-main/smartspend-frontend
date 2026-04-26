@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import { useSettings } from '~/features/settings/composables/useSettings'
+import { useUpdateSettings } from '~/features/settings/queries/useUpdateSettings'
+
 import AppVisibilitySelect from '~/components/ui/inputs/AppVisibilitySelect.vue'
+
+const { settings } = useSettings()
 </script>
 
 <template>
