@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { formatMonth } from '~/utils/formatMonth'
-import { useDepositsRates } from '~/features/deposits/composables/useDepositsRates'
+import type { DepositChartRate } from '~/types'
+
+type DepositTermsSelectProps = {
+  rates: DepositChartRate[]
+}
+
+const props = defineProps<DepositTermsSelectProps>()
 
 const dropdownElem = useTemplateRef('dropdownElem')
 const isOpened = ref(false)
 
 const modelValue = defineModel<number>({ required: true })
 
-const { rates } = useDepositsRates()
-
 const options = computed(() => {
-  return rates.value.map((rate) => ({
+  return props.rates.map((rate) => ({
     label: rate.months,
     value: rate.months
   }))

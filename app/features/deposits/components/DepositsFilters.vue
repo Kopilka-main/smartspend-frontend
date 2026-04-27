@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { useDepositsFiltersModal } from '~/features/deposits/composables/useDepositsFiltersModal'
+import type { DepositChartRate } from '~/types'
 
 import DepositTermsSelect from '~/features/deposits/components/DepositTermsSelect.vue'
 
+type DepositsFiltersProps = {
+  rates: DepositChartRate[]
+}
+
+defineProps<DepositsFiltersProps>()
+
 const depositsFiltersModal = useDepositsFiltersModal((payload) => {
-  banksModelValue.value = payload.banks
-  conditionsModelValue.value = payload.conditions
-  frequencyModelValue.value = payload.frequency
-  liquidityModelValue.value = payload.liquidity
+  banksModelValue.value = [...payload.banks]
+  conditionsModelValue.value = [...payload.conditions]
+  frequencyModelValue.value = [...payload.frequency]
+  liquidityModelValue.value = [...payload.liquidity]
 })
 
 const amountModelValue = defineModel<number>('amount', { default: 500000 })
@@ -63,7 +70,7 @@ const totalActiveFilters = computed(() => {
       <div class="dep-filter-group">
         <span class="dep-filter-label">Срок вклада</span>
 
-        <DepositTermsSelect v-model="termModelValue" />
+        <DepositTermsSelect v-model="termModelValue" :rates="rates" />
       </div>
 
       <div class="dep-filter-group">

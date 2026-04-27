@@ -8,9 +8,16 @@ type PromoCardVoteButtonsProps = {
   votesDown: number
   id: number
   myVote: string | null
+  canDelete?: boolean
 }
 
-const props = defineProps<PromoCardVoteButtonsProps>()
+const props = withDefaults(defineProps<PromoCardVoteButtonsProps>(), {
+  canDelete: false
+})
+
+const emit = defineEmits<{
+  (e: 'remove'): void
+}>()
 
 const { mutate } = useVotePromo(props.id.toString())
 
@@ -95,6 +102,14 @@ const notAnim = ref(false)
       </button>
 
       <slot name="badge" />
+
+      <button
+        v-if="canDelete"
+        class="acc-btn-visibility acc-btn-delete-gray"
+        @click="emit('remove')"
+      >
+        Удалить
+      </button>
     </div>
   </div>
 </template>

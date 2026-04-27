@@ -2,6 +2,7 @@
 import { useCategories } from '~/composables/useCategories'
 import { useMyCompanies } from '~/features/companies/composables/useMyCompanies'
 import { useCompanies } from '~/composables/useCompanies'
+import { useSaveMyCompanies } from '~/features/companies/queries/useSaveMyCompanies'
 
 import type { Company } from '~/types'
 
@@ -20,6 +21,11 @@ useHead({
   title: 'Подбор компаний'
 })
 
+const router = useRouter()
+
+const { mutate } = useSaveMyCompanies(() => {
+  router.push('/account')
+})
 const { myCompanies } = useMyCompanies()
 const { categories } = useCategories()
 const { companies } = useCompanies()
@@ -38,6 +44,12 @@ watch(
 const companiesForCurrentCategory = computed(() => {
   return companies.value.filter(
     (company) => company.categoryId === currentCategory.value?.id
+  )
+})
+
+const selectedCompaniesForCurrentCategory = computed(() => {
+  return companiesForCurrentCategory.value.filter((c) =>
+    selectedCompanies.value.includes(c.id)
   )
 })
 
@@ -61,15 +73,15 @@ const currentCategoryLabel = computed(() => {
   return ''
 })
 
-const selectedCategoriesLength = computed(() => {
-  return 0
-})
-
 const isCompanySelected = (company: Company) => {
   return selectedCompanies.value.includes(company.id)
 }
 
 const activeCompany = ref<Company | null>(null)
+
+const isCompanyActive = (company: Company) => {
+  return activeCompany.value?.id === company.id
+}
 
 const cNoun = (n: number) => {
   const m = n % 10,
@@ -93,9 +105,17 @@ const onPrev = () => {
   currentStep.value = currentStep.value - 1
 }
 
-const onResetCategory = () => {}
+const onResetCategory = () => {
+  selectedCompanies.value = selectedCompanies.value.filter(
+    (c) => !companiesForCurrentCategory.value.find((i) => i.id !== c)
+  )
+}
 
-const onFinish = () => {}
+const onFinish = () => {
+  mutate({
+    companyIds: selectedCompanies.value
+  })
+}
 
 const onNext = () => {
   if (currentStep.value < totalSteps.value - 1) {
@@ -144,8 +164,11 @@ const onSelectCompany = (company: Company) => {
       <div id="sp-cpicker-step" class="cpicker-cat-header">
         <span class="cpicker-cat-title">{{ currentCategoryLabel }}</span>
 
-        <span v-if="selectedCategoriesLength > 0" class="cpicker-cat-count">
-          {{ selectedCategoriesLength }} выбрано
+        <span
+          v-if="selectedCompaniesForCurrentCategory.length > 0"
+          class="cpicker-cat-count"
+        >
+          {{ selectedCompaniesForCurrentCategory.length }} выбрано
         </span>
       </div>
 
@@ -154,13 +177,14 @@ const onSelectCompany = (company: Company) => {
           <button class="cpicker-btn-back" @click="onPrev">← Назад</button>
 
           <button
-            v-if="selectedCategoriesLength > 0"
+            v-if="selectedCompaniesForCurrentCategory.length > 0"
             class="cpicker-btn-reset"
             @click="onResetCategory"
           >
             Сбросить
           </button>
         </div>
+
         <div class="cpicker-actions-right">
           <button class="cpicker-btn-finish" @click="onFinish">Готово</button>
 
@@ -183,8 +207,10 @@ const onSelectCompany = (company: Company) => {
             :key="company.id"
             :company="company"
             :is-selected="isCompanySelected(company)"
-            :is-active="false"
+            :is-active="isCompanyActive(company)"
             @select="onSelectCompany"
+            @activate="activeCompany = $event"
+            @deactivate="activeCompany = null"
           />
         </div>
 

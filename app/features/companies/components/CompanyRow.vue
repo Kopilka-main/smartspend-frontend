@@ -11,12 +11,16 @@ defineProps<CompanyRowProps>()
 
 const emit = defineEmits<{
   (e: 'select', company: Company): void
+  (e: 'activate', company: Company): void
+  (e: 'deactivate', company: Company): void
 }>()
 </script>
 
 <template>
   <div
     :class="`cpicker-row${isSelected ? ' selected' : ''}${isActive ? ' active' : ''}`"
+    @mouseenter="emit('activate', company)"
+    @mouseleave="emit('deactivate', company)"
     @click="emit('select', company)"
   >
     <div class="cpicker-row-logo" :style="{ background: company.color }">

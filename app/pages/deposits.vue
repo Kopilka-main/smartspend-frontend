@@ -28,8 +28,8 @@ const filters = ref({
   liquidity: []
 })
 
-const { rates } = useDepositsRates()
-const { deposits, isLoading } = useDeposits()
+const { rates } = useDepositsRates(filters)
+const { deposits, isLoading } = useDeposits(filters)
 </script>
 
 <template>
@@ -54,6 +54,7 @@ const { deposits, isLoading } = useDeposits()
     <DepositsChart v-model="filters.selectedMonth" :rates="rates" />
 
     <DepositsFilters
+      :rates="rates"
       v-model:term="filters.selectedMonth"
       v-model:sort="filters.sort"
       v-model:banks="filters.banks"

@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { useMyArticles } from '~/features/articles/composables/useMyArticles'
 import { useMySets } from '~/features/account/composables/useMySets'
+import { useMyWhispers } from '~/features/account/composables/useMyWhispers'
+import { useMyCompanies } from '~/features/companies/composables/useMyCompanies'
 
 import AccountInfoCard from '~/features/account/components/AccountInfoCard.vue'
 import AccountSetsSection from '~/features/account/components/sets/AccountSetsSection.vue'
 import AccountArticlesSection from '~/features/account/components/articles/AccountArticlesSection.vue'
+import AccountPromoSection from '~/features/account/components/promo/AccountPromoSection.vue'
+import AccountCompaniesSection from '~/features/account/components/companies/AccountCompaniesSection.vue'
 
 definePageMeta({
   layout: 'dashboard',
@@ -20,6 +24,7 @@ useHead({
 
 const { mySets } = useMySets()
 const { myArticles } = useMyArticles()
+const { myWhispers } = useMyWhispers()
 
 const activeTab = ref('sets')
 
@@ -39,7 +44,10 @@ const tabs = computed(() => {
     },
     {
       id: 'whispers',
-      label: 'Промо'
+      label:
+        myWhispers.value.length > 0
+          ? `Промо · ${myWhispers.value.length}`
+          : 'Промо'
     },
     {
       id: 'subs',
@@ -58,6 +66,10 @@ const activeTabComponent = computed(() => {
       return AccountSetsSection
     case 'articles':
       return AccountArticlesSection
+    case 'whispers':
+      return AccountPromoSection
+    case 'companies':
+      return AccountCompaniesSection
     default:
       return null
   }
