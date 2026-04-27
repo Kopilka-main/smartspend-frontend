@@ -35,6 +35,8 @@ export type UserProfile = {
   articlesCount: number
   setsCount: number
   isFollowing: boolean
+  isDeleted: boolean
+  isPrivate: boolean
 }
 
 export type SetCategory = {

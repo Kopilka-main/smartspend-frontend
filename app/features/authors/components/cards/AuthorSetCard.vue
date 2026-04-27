@@ -14,11 +14,7 @@ defineProps<AuthorSetCardProps>()
     <div class="acc-set-accent" :style="{ background: set.color }" />
     <div class="acc-set-body">
       <div class="acc-set-top-row">
-        <span class="acc-set-source">{{ set.author.displayName }}</span>
-
-        <span class="visibility-badge public" :style="{ fontSize: '9px' }">
-          Публичный
-        </span>
+        <slot />
       </div>
 
       <div class="acc-set-name">{{ set.title }}</div>

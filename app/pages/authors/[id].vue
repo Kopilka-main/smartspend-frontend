@@ -14,7 +14,7 @@ definePageMeta({
 })
 
 const route = useRoute()
-const { title } = useAuthorProfile(route.params.id as string)
+const { profile, title } = useAuthorProfile(route.params.id as string)
 
 useHead({
   title
@@ -23,6 +23,8 @@ useHead({
 
 <template>
   <main class="account-main">
-    <PublicAuthorProfile />
+    <GhostAuthorProfile v-if="profile?.isDeleted" />
+    <AnonymousAuthorProfile v-else-if="profile?.isPrivate" />
+    <PublicAuthorProfile v-else />
   </main>
 </template>
