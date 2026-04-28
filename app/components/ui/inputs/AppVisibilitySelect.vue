@@ -1,11 +1,11 @@
 <script setup lang="ts">
 const modelValue = defineModel<string>({ default: 'all' })
 
-const items = [
+const items = ref([
   { value: 'all', label: 'Все' },
   { value: 'followers', label: 'Подписчики' },
-  { value: 'only_me', label: 'Только я' }
-]
+  { value: 'me', label: 'Только я' }
+])
 </script>
 
 <template>

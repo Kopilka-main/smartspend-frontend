@@ -434,3 +434,39 @@ export type SettingsResponse = {
   privacyArticles: string
   privacyProfile: string
 }
+
+export type InventoryItem = {
+  createdAt: Date
+  dailyUse: any
+  groupId: string
+  id: string
+  isExtra: boolean
+  lastBought: any
+  name: string
+  notes: any
+  paused: boolean
+  photos: any[]
+  price: number
+  purchaseDate: any
+  purchases: any[]
+  qty: string
+  setId: string
+  type: string
+  unit: string
+  updatedAt: Date
+  userId: string
+  wearLifeWeeks: any
+  status: string
+}
+
+export type NotificationItem = {
+  id: number
+  userId: string
+  type: string
+  title: string
+  description: string
+  isRead: boolean
+  payload: string
+  actionStatus: string
+  createdAt: Date
+}

@@ -5,6 +5,41 @@ import { useUpdateSettings } from '~/features/settings/queries/useUpdateSettings
 import AppVisibilitySelect from '~/components/ui/inputs/AppVisibilitySelect.vue'
 
 const { settings } = useSettings()
+const { mutate } = useUpdateSettings()
+
+const privacySets = ref('all')
+const privacyArticles = ref('all')
+const privacyProfile = ref('all')
+
+watch(
+  () => settings.value,
+  () => {
+    privacySets.value = settings.value.privacySets
+    privacyArticles.value = settings.value.privacyArticles
+    privacyProfile.value = settings.value.privacyProfile
+
+    console.log(privacySets.value, privacyArticles.value, privacyProfile.value)
+  },
+  {
+    immediate: true
+  }
+)
+
+const onChangePrivacySets = () => {
+  mutate({
+    privacySets: privacySets.value
+  })
+}
+const onChangePrivacyArticles = () => {
+  mutate({
+    privacyArticles: privacyArticles.value
+  })
+}
+const onChangePrivacyProfile = () => {
+  mutate({
+    privacyProfile: privacyProfile.value
+  })
+}
 </script>
 
 <template>
@@ -19,7 +54,10 @@ const { settings } = useSettings()
         </div>
       </div>
 
-      <AppVisibilitySelect />
+      <AppVisibilitySelect
+        v-model="privacySets"
+        @update:modelValue="onChangePrivacySets"
+      />
     </div>
 
     <div class="settings-row settings-row-vert">
@@ -30,7 +68,10 @@ const { settings } = useSettings()
         </div>
       </div>
 
-      <AppVisibilitySelect />
+      <AppVisibilitySelect
+        v-model="privacyArticles"
+        @update:modelValue="onChangePrivacyArticles"
+      />
     </div>
 
     <div class="settings-row settings-row-vert">
@@ -39,7 +80,10 @@ const { settings } = useSettings()
         <div class="settings-row-desc">Имя, аватар, подписки и активность</div>
       </div>
 
-      <AppVisibilitySelect />
+      <AppVisibilitySelect
+        v-model="privacyProfile"
+        @update:modelValue="onChangePrivacyProfile"
+      />
     </div>
   </div>
 </template>

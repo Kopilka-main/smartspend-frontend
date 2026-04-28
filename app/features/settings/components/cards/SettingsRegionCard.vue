@@ -14,22 +14,20 @@ watch(
     timeZone.value = settings.value.timezone
     location.value = settings.value.location
   },
-  { immediate: true }
+  {
+    immediate: true
+  }
 )
 
 const onChangeTimeZone = (event: any) => {
-  timeZone.value = event.target.value
-
   mutate({
-    timezone: timeZone.value
+    timezone: event.target.value
   })
 }
 
 const onChangeLocation = (event: any) => {
-  location.value = event.target.value
-
   mutate({
-    location: location.value
+    location: event.target.value
   })
 }
 
@@ -95,9 +93,9 @@ const timeZoneOptions = [
       </div>
 
       <select
-        :value="timeZone"
-        @change="onChangeTimeZone"
+        v-model="timeZone"
         class="settings-tz-select"
+        @change="onChangeTimeZone"
       >
         <option
           v-for="option in timeZoneOptions"
@@ -119,9 +117,9 @@ const timeZoneOptions = [
       </div>
 
       <select
-        :value="location"
-        @change="onChangeLocation"
+        v-model="location"
         class="settings-tz-select"
+        @change="onChangeLocation"
       >
         <option value="">Не указано</option>
 

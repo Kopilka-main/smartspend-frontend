@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useCurrentUser } from '~/composables/useCurrentUser'
+
+const { currentUser } = useCurrentUser()
+
 const hasPassword = computed(() => {
   return false
 })
@@ -12,7 +16,7 @@ const isSocialUser = computed(() => {
 })
 
 const currentEmail = computed(() => {
-  return ''
+  return currentUser.value ? currentUser.value.email : ''
 })
 </script>
 

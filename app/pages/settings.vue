@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useSettings } from '~/features/settings/composables/useSettings'
+
 import SettingsThemeCard from '~/features/settings/components/cards/SettingsThemeCard.vue'
 import SettingsNotificationsCard from '~/features/settings/components/cards/SettingsNotificationsCard.vue'
 import SettingsRegionCard from '~/features/settings/components/cards/SettingsRegionCard.vue'
@@ -17,6 +19,8 @@ definePageMeta({
 useHead({
   title: 'Настройки'
 })
+
+useSettings()
 </script>
 
 <template>

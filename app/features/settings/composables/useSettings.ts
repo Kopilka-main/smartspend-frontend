@@ -1,7 +1,7 @@
 import { useFetchSettings } from '~/features/settings/queries/useFetchSettings'
 
 export const useSettings = () => {
-  const { data, isLoading } = useFetchSettings()
+  const { data, refresh, isLoading } = useFetchSettings()
 
   const settings = computed(() => {
     return data.value
@@ -15,14 +15,15 @@ export const useSettings = () => {
           notifySubscriptions: false,
           notifySetChanges: false,
           notifyReminders: false,
-          privacySets: '',
-          privacyArticles: '',
-          privacyProfile: ''
+          privacySets: 'all',
+          privacyArticles: 'all',
+          privacyProfile: 'all'
         }
   })
 
   return {
     settings,
+    refresh,
     isLoading
   }
 }
