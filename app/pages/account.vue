@@ -2,13 +2,8 @@
 import { useMyArticles } from '~/features/articles/composables/useMyArticles'
 import { useMySets } from '~/features/account/composables/useMySets'
 import { useMyWhispers } from '~/features/account/composables/useMyWhispers'
-import { useMyCompanies } from '~/features/companies/composables/useMyCompanies'
 
 import AccountInfoCard from '~/features/account/components/AccountInfoCard.vue'
-import AccountSetsSection from '~/features/account/components/sets/AccountSetsSection.vue'
-import AccountArticlesSection from '~/features/account/components/articles/AccountArticlesSection.vue'
-import AccountPromoSection from '~/features/account/components/promo/AccountPromoSection.vue'
-import AccountCompaniesSection from '~/features/account/components/companies/AccountCompaniesSection.vue'
 
 definePageMeta({
   layout: 'dashboard',
@@ -25,8 +20,6 @@ useHead({
 const { mySets } = useMySets()
 const { myArticles } = useMyArticles()
 const { myWhispers } = useMyWhispers()
-
-const activeTab = ref('sets')
 
 const tabs = computed(() => {
   return [
@@ -59,21 +52,6 @@ const tabs = computed(() => {
     }
   ]
 })
-
-const activeTabComponent = computed(() => {
-  switch (activeTab.value) {
-    case 'sets':
-      return AccountSetsSection
-    case 'articles':
-      return AccountArticlesSection
-    case 'whispers':
-      return AccountPromoSection
-    case 'companies':
-      return AccountCompaniesSection
-    default:
-      return null
-  }
-})
 </script>
 
 <template>
@@ -82,7 +60,7 @@ const activeTabComponent = computed(() => {
       <div>
         <div
           class="page-title"
-          :style="{ display: 'flex', alignItems: 'center', gap: 10 }"
+          :style="{ display: 'flex', alignItems: 'center', gap: '10px' }"
         >
           Аккаунт
         </div>
@@ -92,16 +70,17 @@ const activeTabComponent = computed(() => {
     <AccountInfoCard />
 
     <div id="sp-acc-tabs" class="acc-tabs">
-      <button
+      <NuxtLink
         v-for="tab in tabs"
         :key="tab.id"
-        :class="`acc-tab${activeTab === tab.id ? ' active' : ''}`"
-        @click="activeTab = tab.id"
+        :to="`/account/${tab.id}`"
+        class="acc-tab"
+        activeClass="active"
       >
         {{ tab.label }}
-      </button>
+      </NuxtLink>
     </div>
 
-    <component :is="activeTabComponent" />
+    <NuxtPage />
   </main>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useCurrentUser } from '~/composables/useCurrentUser'
+// import { useUpdateSettings } from '~/features/settings/queries/useUpdateSettings'
 
 type MenuItem = {
   href: string
@@ -50,23 +51,31 @@ const bottomItems: MenuItem[] = [
 
 const router = useRouter()
 const { currentUser } = useCurrentUser()
+// const { mutate } = useUpdateSettings(() => {
+//   useAuth().refresh()
+// })
+
+const isDarkMode = computed(() => {
+  return currentUser.value?.theme === 'dark'
+})
+
+const onToggleTheme = () => {
+  // mutate({
+  //   theme: isDarkMode.value ? 'light' : 'dark'
+  // })
+}
 
 const switchToAccount = () => {
-  router.push('/account')
+  router.push('/account/articles')
 }
 
-const onAccountMouseEnter = (event: MouseEvent) => {
-  if (event.currentTarget) {
-    ;(event.currentTarget as HTMLDivElement).style.background =
-      'var(--surface-2)'
-  }
-}
-
-const onAccountMouseLeave = (event: MouseEvent) => {
-  if (event.currentTarget) {
-    ;(event.currentTarget as HTMLDivElement).style.background = ''
-  }
-}
+// watch(
+//   isDarkMode,
+//   () => {
+//     document.body.classList.toggle('dark', isDarkMode.value)
+//   },
+//   { immediate: true }
+// )
 </script>
 
 <template>
@@ -134,10 +143,15 @@ const onAccountMouseLeave = (event: MouseEvent) => {
     </nav>
 
     <div class="sidebar-bottom">
-      <button class="theme-toggle">
-        <Icon name="icons:sun" class="nav-icon" />
+      <button class="theme-toggle" @click="onToggleTheme">
+        <Icon
+          :name="isDarkMode ? 'icons:moon' : 'icons:sun'"
+          class="nav-icon"
+        />
 
-        <span class="nav-label theme-label">Тёмная тема</span>
+        <span class="nav-label theme-label">
+          {{ isDarkMode ? 'Светлая тема' : 'Темная тема' }}
+        </span>
       </button>
 
       <div class="sidebar-user" @click="switchToAccount">

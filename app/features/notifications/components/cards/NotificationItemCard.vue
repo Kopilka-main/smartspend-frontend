@@ -1,13 +1,17 @@
 <script setup lang="ts">
+import type { NotificationItem } from '~/types'
+
 type NotificationItemCardProps = {
-  notification: any
+  notification: NotificationItem
 }
 
-defineProps<NotificationItemCardProps>()
+const props = defineProps<NotificationItemCardProps>()
+
+const onRemove = () => {}
 </script>
 
 <template>
-  <div :class="`notif-item${notification.unread ? ' unread' : ''}`">
+  <div :class="`notif-item${!notification.isRead ? ' unread' : ''}`">
     <div class="notif-item-icons">
       <div
         v-if="notification.author"
@@ -16,17 +20,55 @@ defineProps<NotificationItemCardProps>()
       >
         {{ notification.author.initials }}
       </div>
+      <div v-else class="notif-avatar notif-avatar-sys">
+        <svg viewBox="0 0 16 16" fill="none" width="18" height="18">
+          <rect
+            x="2"
+            y="2"
+            width="5"
+            height="5"
+            rx="1.5"
+            fill="currentColor"
+            opacity="0.8"
+          />
+          <rect
+            x="9"
+            y="2"
+            width="5"
+            height="5"
+            rx="1.5"
+            fill="currentColor"
+            opacity="0.4"
+          />
+          <rect
+            x="2"
+            y="9"
+            width="5"
+            height="5"
+            rx="1.5"
+            fill="currentColor"
+            opacity="0.4"
+          />
+          <rect
+            x="9"
+            y="9"
+            width="5"
+            height="5"
+            rx="1.5"
+            fill="currentColor"
+            opacity="0.8"
+          />
+        </svg>
+      </div>
     </div>
 
     <div class="notif-body">
       <div class="notif-title">{{ notification.title }}</div>
-      <div class="notif-desc">{{ notification.desc }}</div>
-      <div class="notif-time">{{ notification.time }}</div>
+      <div class="notif-desc">{{ notification.description }}</div>
+      <div class="notif-time">{{ notification.createdAt }}</div>
     </div>
 
-    <div v-if="notification.unread" class="notif-dot" />
-
-    <button class="notif-delete-btn">
+    <button class="notif-delete-btn" @click="onRemove">
       <svg
         width="12"
         height="12"

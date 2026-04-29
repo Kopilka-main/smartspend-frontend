@@ -1,5 +1,5 @@
 import { useQuery } from '@pinia/colada'
-import type { Company } from '~/types'
+import type { SavedCompany } from '~/types'
 
 export const useFetchMyCompanies = () => {
   const { $api } = useNuxtApp()
@@ -7,7 +7,7 @@ export const useFetchMyCompanies = () => {
   return useQuery({
     key: ['my-companies'],
     query: async () => {
-      return await $api<{ data: Company[] }>('/companies/user-companies', {
+      return await $api<{ data: SavedCompany[] }>('/companies/user-companies', {
         method: 'GET'
       })
     }

@@ -98,7 +98,7 @@ const onPrev = () => {
   dir.value = -1
 
   if (currentStep.value === 0) {
-    // go back
+    // router.back()
     return
   }
 
@@ -107,7 +107,7 @@ const onPrev = () => {
 
 const onResetCategory = () => {
   selectedCompanies.value = selectedCompanies.value.filter(
-    (c) => !companiesForCurrentCategory.value.find((i) => i.id !== c)
+    (c) => !selectedCompaniesForCurrentCategory.value.find((i) => i.id === c)
   )
 }
 

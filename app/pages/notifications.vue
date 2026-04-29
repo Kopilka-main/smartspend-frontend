@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { useNotifications } from '~/features/notifications/composables/useNotifications'
+
 import NotificationsRequestsEmpty from '~/features/notifications/components/NotificationsRequestsEmpty.vue'
 import NotificationRequestCard from '~/features/notifications/components/cards/request/NotificationRequestCard.vue'
 import NotificationItemCard from '~/features/notifications/components/cards/NotificationItemCard.vue'
 import NotificationsItemsEmpty from '~/features/notifications/components/NotificationsItemsEmpty.vue'
 import NotificationsGroup from '~/features/notifications/components/NotificationsGroup.vue'
-import { useNotifications } from '~/features/notifications/composables/useNotifications'
 
 definePageMeta({
   layout: 'dashboard',
@@ -20,12 +21,7 @@ useHead({
 
 const { notifications } = useNotifications()
 
-const totalUnread = ref(0)
-const unreadDialogCount = ref(0)
 const selectedFilter = ref('all')
-const deletedIds = ref<string[]>([])
-const requests = ref<any[]>([])
-const filtered = ref<any[]>([])
 
 const FILTERS = [
   { id: 'all', label: 'Все' },
@@ -35,7 +31,33 @@ const FILTERS = [
   { id: 'requests', label: 'Запросы' }
 ]
 
-const pendingRequests = computed<any[]>(() => {
+const requests = computed(() => {
+  return notifications.value.filter(
+    (notification) => notification.type === 'request'
+  )
+})
+
+const pendingRequests = computed(() => {
+  return requests.value.filter((notification) => !notification.isRead)
+})
+
+const unreadNotifications = computed(() => {
+  if (selectedFilter.value === 'all') {
+    return notifications.value.filter(
+      (notification) => !notification.isRead && notification.type !== 'request'
+    )
+  }
+
+  return []
+})
+
+const readNotifications = computed(() => {
+  if (selectedFilter.value === 'all') {
+    return notifications.value.filter(
+      (notification) => notification.isRead && notification.type !== 'request'
+    )
+  }
+
   return []
 })
 
@@ -44,14 +66,6 @@ const closedRequests = computed<any[]>(() => {
 })
 
 const deletedRequests = computed<any[]>(() => {
-  return []
-})
-
-const unreadFiltered = computed<any[]>(() => {
-  return []
-})
-
-const readFiltered = computed<any[]>(() => {
   return []
 })
 </script>
@@ -69,27 +83,6 @@ const readFiltered = computed<any[]>(() => {
 
         <div class="page-subtitle">Новости, ответы и напоминания</div>
       </div>
-
-      <button
-        v-if="totalUnread > 0"
-        id="sp-notif-mark"
-        class="notif-mark-all-btn"
-      >
-        <svg
-          width="13"
-          height="13"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M20 6L9 17l-5-5" />
-        </svg>
-
-        Прочитать все
-      </button>
     </div>
 
     <div id="sp-notif-filters" class="notif-filters">
@@ -97,33 +90,16 @@ const readFiltered = computed<any[]>(() => {
         v-for="filter in FILTERS"
         :key="filter.id"
         :class="`notif-filter-btn${selectedFilter === filter.id ? ' active' : ''}`"
+        @click="selectedFilter = filter.id"
       >
         {{ filter.label }}
 
         <span
-          v-if="filter.id === 'requests' && unreadDialogCount > 0"
+          v-if="filter.id === 'requests' && pendingRequests.length > 0"
           class="notif-filter-badge"
         >
-          {{ unreadDialogCount }}
+          {{ pendingRequests.length }}
         </span>
-      </button>
-
-      <button v-if="deletedIds.length > 0" class="notif-deleted-pill">
-        <svg
-          width="12"
-          height="12"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="1 4 1 10 7 10" />
-          <path d="M3.51 15a9 9 0 1 0 .49-3.5" />
-        </svg>
-
-        Удалено: {{ deletedIds.length }}
       </button>
     </div>
 
@@ -147,7 +123,7 @@ const readFiltered = computed<any[]>(() => {
             v-if="closedRequests.length > 0"
             label="Завершённые"
             :label-style="{
-              marginTop: requests.some((r) => r.status === 'pending')
+              marginTop: requests.some((r) => r.actionStatus === 'pending')
                 ? '20px'
                 : 0
             }"
@@ -196,27 +172,29 @@ const readFiltered = computed<any[]>(() => {
       </template>
 
       <template v-else>
-        <NotificationsGroup v-if="unreadFiltered.length > 0" label="Новые">
+        <NotificationsGroup v-if="unreadNotifications.length > 0" label="Новые">
           <NotificationItemCard
-            v-for="notification in unreadFiltered"
+            v-for="notification in unreadNotifications"
             :key="notification.id"
             :notification="notification"
           />
         </NotificationsGroup>
 
         <NotificationsGroup
-          v-if="readFiltered.length > 0"
-          :label="unreadFiltered.length > 0 ? 'Ранее' : 'Прочитанные'"
-          :label-style="{ marginTop: unreadFiltered.length > 0 ? '20px' : 0 }"
+          v-if="readNotifications.length > 0"
+          :label="unreadNotifications.length > 0 ? 'Ранее' : 'Прочитанные'"
+          :label-style="{
+            marginTop: unreadNotifications.length > 0 ? '20px' : 0
+          }"
         >
           <NotificationItemCard
-            v-for="notification in readFiltered"
+            v-for="notification in readNotifications"
             :key="notification.id"
             :notification="notification"
           />
         </NotificationsGroup>
 
-        <NotificationsItemsEmpty v-if="filtered.length === 0" />
+        <NotificationsItemsEmpty v-if="notifications.length === 0" />
       </template>
     </div>
   </main>

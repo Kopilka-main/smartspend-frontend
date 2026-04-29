@@ -2,6 +2,7 @@
 import { useMySets } from '~/features/account/composables/useMySets'
 
 import AccountSetCard from '~/features/account/components/sets/AccountSetCard.vue'
+import AccountSetsEmpty from '~/features/account/components/sets/AccountSetsEmpty.vue'
 
 const { mySets } = useMySets()
 
@@ -24,19 +25,9 @@ const onCreateNewSet = () => {
       </button>
     </div>
 
-    <div v-if="mySets.length === 0" class="acc-empty">
-      <div class="acc-empty-icon">
-        <Icon name="icons:sets-empty" :size="32" />
-      </div>
+    <AccountSetsEmpty v-if="mySets.length === 0" />
 
-      <div class="acc-empty-title">Нет наборов</div>
-
-      <div class="acc-empty-desc">
-        Создайте первый набор или добавьте готовый из каталога
-      </div>
-    </div>
-
-    <div class="catalog-grid">
+    <div v-else class="catalog-grid">
       <AccountSetCard v-for="set in mySets" :key="set.id" :set="set" />
     </div>
   </div>

@@ -351,6 +351,17 @@ export type Company = {
   promoTypes: string[]
 }
 
+export type SavedCompany = {
+  id: string
+  name: string
+  abbr: string
+  color: string
+  categoryId: string
+  categoryName: string
+  description: string
+  promoTypes: string[]
+}
+
 export type VoteHistoryItem = {
   userId: string
   vote: string
@@ -460,13 +471,34 @@ export type InventoryItem = {
 }
 
 export type NotificationItem = {
-  id: number
-  userId: string
-  type: string
-  title: string
-  description: string
-  isRead: boolean
-  payload: string
-  actionStatus: string
+  actionStatus: any
+  articleId: any
+  articleTitle: any
+  author: any
+  authorId: any
   createdAt: Date
+  description: string
+  direction: any
+  id: number
+  isRead: boolean
+  messagesCount: number
+  payload: any
+  setId: any
+  setTitle: any
+  title: string
+  type: string
+  userId: string
+}
+
+export type Subscription = {
+  id: string
+  displayName: string
+  username: string
+  initials: string
+  color: string
+  avatarUrl: string
+  followersCount: number
+  articlesCount: number
+  setsCount: number
+  bio: string
 }

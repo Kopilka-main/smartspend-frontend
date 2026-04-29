@@ -1,7 +1,7 @@
 import { useMutation, useQueryCache } from '@pinia/colada'
 import type { SettingsResponse } from '~/types'
 
-export const useUpdateSettings = () => {
+export const useUpdateSettings = (onSuccess?: () => void) => {
   const { $api } = useNuxtApp()
   const queryCache = useQueryCache()
 
@@ -11,6 +11,10 @@ export const useUpdateSettings = () => {
     },
     onSuccess: () => {
       queryCache.invalidateQueries({ key: ['settings'] })
+
+      if (typeof onSuccess !== 'undefined') {
+        onSuccess()
+      }
     }
   })
 }
