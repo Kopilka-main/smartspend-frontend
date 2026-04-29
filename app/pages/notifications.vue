@@ -38,13 +38,42 @@ const requests = computed(() => {
 })
 
 const pendingRequests = computed(() => {
-  return requests.value.filter((notification) => !notification.isRead)
+  return requests.value.filter(
+    (notification) => notification.actionStatus === 'pending'
+  )
+})
+
+const closedRequests = computed<any[]>(() => {
+  return []
+})
+
+const deletedRequests = computed<any[]>(() => {
+  return []
 })
 
 const unreadNotifications = computed(() => {
   if (selectedFilter.value === 'all') {
     return notifications.value.filter(
       (notification) => !notification.isRead && notification.type !== 'request'
+    )
+  }
+
+  if (selectedFilter.value === 'subs') {
+    return notifications.value.filter(
+      (notification) =>
+        !notification.isRead && notification.type === 'subscription'
+    )
+  }
+
+  if (selectedFilter.value === 'replies') {
+    return notifications.value.filter(
+      (notification) => !notification.isRead && notification.type === 'reply'
+    )
+  }
+
+  if (selectedFilter.value === 'reminders') {
+    return notifications.value.filter(
+      (notification) => !notification.isRead && notification.type === 'reminder'
     )
   }
 
@@ -58,14 +87,25 @@ const readNotifications = computed(() => {
     )
   }
 
-  return []
-})
+  if (selectedFilter.value === 'subs') {
+    return notifications.value.filter(
+      (notification) =>
+        notification.isRead && notification.type === 'subscription'
+    )
+  }
 
-const closedRequests = computed<any[]>(() => {
-  return []
-})
+  if (selectedFilter.value === 'replies') {
+    return notifications.value.filter(
+      (notification) => notification.isRead && notification.type === 'reply'
+    )
+  }
 
-const deletedRequests = computed<any[]>(() => {
+  if (selectedFilter.value === 'reminders') {
+    return notifications.value.filter(
+      (notification) => notification.isRead && notification.type === 'reminder'
+    )
+  }
+
   return []
 })
 </script>

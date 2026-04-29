@@ -7,13 +7,18 @@ type AccountSubscriptionCardProps = {
 
 const props = defineProps<AccountSubscriptionCardProps>()
 
+const router = useRouter()
+
 const initials = computed(() => {
   return props.subscription.initials
 })
 </script>
 
 <template>
-  <div class="subscription-card">
+  <div
+    class="subscription-card"
+    @click="router.push(`/authors/${subscription}`)"
+  >
     <div class="subscription-top">
       <div
         class="subscription-avatar"

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { NotificationItem } from '~/types'
+import { formatDistanceToNowStrict } from 'date-fns'
+import { ru } from 'date-fns/locale'
 
 type NotificationItemCardProps = {
   notification: NotificationItem
@@ -65,7 +67,14 @@ const onRemove = () => {}
     <div class="notif-body">
       <div class="notif-title">{{ notification.title }}</div>
       <div class="notif-desc">{{ notification.description }}</div>
-      <div class="notif-time">{{ notification.createdAt }}</div>
+      <div class="notif-time">
+        {{
+          formatDistanceToNowStrict(notification.createdAt, {
+            addSuffix: true,
+            locale: ru
+          })
+        }}
+      </div>
     </div>
 
     <button class="notif-delete-btn" @click="onRemove">

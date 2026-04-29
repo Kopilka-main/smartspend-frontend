@@ -1,17 +1,66 @@
 <script setup lang="ts">
+import { useNotificationRequestAction } from '~/features/notifications/queries/useNotificationRequestAction'
+import type { NotificationItem } from '~/types'
+
 import NotificationRequestMessages from '~/features/notifications/components/cards/request/NotificationRequestMessages.vue'
 
 type NotificationRequestCardProps = {
-  request: any
+  request: NotificationItem
 }
 
-defineProps<NotificationRequestCardProps>()
+const props = defineProps<NotificationRequestCardProps>()
 
-const isPending = ref(false)
-const isIncoming = ref(false)
-const showUnreadDot = ref(false)
+const router = useRouter()
+const { mutate } = useNotificationRequestAction(props.request.id)
+
+const isPending = computed(() => {
+  return props.request.actionStatus === 'pending'
+})
+
+const isApproved = computed(() => {
+  return props.request.actionStatus === 'approved'
+})
+
+const isRejected = computed(() => {
+  return props.request.actionStatus === 'rejected'
+})
+
+const isWithdrawn = computed(() => {
+  return props.request.actionStatus === 'withdrawn'
+})
+
+const isIncoming = computed(() => {
+  return props.request.direction === 'incoming'
+})
+
 const canDelete = ref(false)
 const showDiscuss = ref(false)
+
+const onShowArticle = () => {
+  router.push(`/articles/${props.request.articleId}`)
+}
+
+const onDiscuss = () => {
+  showDiscuss.value = true
+}
+
+const onReject = () => {
+  mutate({
+    status: 'reject'
+  })
+}
+
+const onApprove = () => {
+  mutate({
+    status: 'approve'
+  })
+}
+
+const onWithdraw = () => {
+  mutate({
+    status: 'withdraw'
+  })
+}
 </script>
 
 <template>
@@ -20,9 +69,9 @@ const showDiscuss = ref(false)
   >
     <div
       v-if="!isPending"
-      :class="`req-status-badge req-status-${request.status}`"
+      :class="`req-status-badge req-status-${request.actionStatus}`"
     >
-      <template v-if="request.status === 'approved'">
+      <template v-if="isApproved">
         <svg
           width="13"
           height="13"
@@ -38,7 +87,8 @@ const showDiscuss = ref(false)
 
         Одобрено
       </template>
-      <template v-if="request.status === 'rejected'">
+
+      <template v-if="isRejected">
         <svg
           width="13"
           height="13"
@@ -53,7 +103,8 @@ const showDiscuss = ref(false)
 
         Отклонено
       </template>
-      <template v-if="request.status === 'withdrawn'">
+
+      <template v-if="isWithdrawn">
         <svg
           width="13"
           height="13"
@@ -76,35 +127,35 @@ const showDiscuss = ref(false)
       <div
         class="req-avatar"
         :style="{
-          background: 'user color',
+          background: request.author.color,
           cursor: 'pointer',
           position: 'relative'
         }"
       >
-        user initials
+        {{ request.author.initials }}
       </div>
 
       <div class="req-card-meta">
         <div class="req-card-title">
           <template v-if="isIncoming">
             <span class="req-user-name-link" :style="{ position: 'relative' }">
-              {user.name}
+              {{ request.author.displayName }}
             </span>
             предлагает статью для вашего набора
           </template>
 
           <template v-else>
-            <strong>{user.name}</strong>. Отправлен запрос на добавление статьи
-            к набору автора
+            <strong> {{ request.author.displayName }} </strong>. Отправлен
+            запрос на добавление статьи к набору автора
           </template>
         </div>
 
-        <div class="req-card-set">{req.set.title}</div>
+        <div class="req-card-set">{{ request.setTitle }}</div>
       </div>
 
-      <div class="req-card-time">{req.time}</div>
-
-      <span v-if="showUnreadDot" class="req-unread-dot" />
+      <div class="req-card-time">
+        {{ formatDate(request.createdAt, 'PPP') }}
+      </div>
 
       <button v-if="canDelete" class="req-card-delete-btn">
         <svg
@@ -122,13 +173,16 @@ const showDiscuss = ref(false)
     </div>
 
     <div class="req-article-preview">
-      <button class="req-article-link">{req.article.title}</button>
+      <button class="req-article-link" @click="onShowArticle">
+        {{ request.articleTitle }}
+      </button>
     </div>
 
     <div class="req-actions-row">
       <button
         v-if="isPending"
         :class="`req-discuss-btn${showDiscuss ? ' active' : ''}`"
+        @click="onDiscuss"
       >
         <svg
           width="13"
@@ -145,25 +199,24 @@ const showDiscuss = ref(false)
 
         Обсудить
 
-        <span v-if="request.messages.length > 0" class="req-msg-count">
-          {req.messages.length}
+        <span v-if="request.messagesCount" class="req-msg-count">
+          {{ request.messagesCount }}
         </span>
       </button>
 
       <div v-if="isPending" class="req-action-btns">
         <template v-if="isIncoming">
-          <button class="req-reject-btn">Отклонить</button>
+          <button class="req-reject-btn" @click="onReject">Отклонить</button>
 
-          <button class="req-approve-btn">Добавить</button>
+          <button class="req-approve-btn" @click="onApprove">Добавить</button>
         </template>
 
-        <button v-else class="req-withdraw-btn">Отозвать запрос</button>
+        <button v-else class="req-withdraw-btn" @click="onWithdraw">
+          Отозвать запрос
+        </button>
       </div>
     </div>
 
-    <NotificationRequestMessages
-      v-if="showDiscuss"
-      :messages="request.messages"
-    />
+    <NotificationRequestMessages v-if="showDiscuss" :messages="[]" />
   </div>
 </template>

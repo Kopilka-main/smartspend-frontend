@@ -474,7 +474,7 @@ export type NotificationItem = {
   actionStatus: any
   articleId: any
   articleTitle: any
-  author: any
+  author: Author
   authorId: any
   createdAt: Date
   description: string
@@ -501,4 +501,13 @@ export type Subscription = {
   articlesCount: number
   setsCount: number
   bio: string
+}
+
+export type NotificationMessage = {
+  id: number
+  notificationId: number
+  userId: string
+  author: Author
+  text: string
+  createdAt: Date
 }
