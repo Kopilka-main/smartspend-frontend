@@ -488,6 +488,7 @@ export type NotificationItem = {
   title: string
   type: string
   userId: string
+  isDeleted: boolean
 }
 
 export type Subscription = {

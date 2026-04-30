@@ -2,6 +2,7 @@
 import type { NotificationItem } from '~/types'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { ru } from 'date-fns/locale'
+import { useDeleteNotification } from '~/features/notifications/queries/useDeleteNotification'
 
 type NotificationItemCardProps = {
   notification: NotificationItem
@@ -9,7 +10,11 @@ type NotificationItemCardProps = {
 
 const props = defineProps<NotificationItemCardProps>()
 
-const onRemove = () => {}
+const { mutate } = useDeleteNotification(props.notification.id)
+
+const onRemove = () => {
+  mutate()
+}
 </script>
 
 <template>

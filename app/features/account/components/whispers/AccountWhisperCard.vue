@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { useVotePromo } from '~/features/promo/queries/useVotePromo'
 import type { PromoItem } from '~/types'
+
 import PromoCardVoteHistory from '~/features/promo/components/common/PromoCardVoteHistory.vue'
 import PromoCardCode from '~/features/promo/components/common/PromoCardCode.vue'
 
@@ -8,6 +10,8 @@ type AccountWhisperCardProps = {
 }
 
 const props = defineProps<AccountWhisperCardProps>()
+
+const { mutate } = useVotePromo(props.whisper.id.toString())
 
 const isDraft = ref(false)
 const isCommentsVisible = ref(false)
@@ -33,7 +37,19 @@ const expiresLabel = computed(() => {
   return parts.join(' · ')
 })
 
-const onRemoveWhisper = () => {}
+const onRemove = () => {}
+
+const onReactAsDown = () => {
+  mutate({
+    vote: 'down'
+  })
+}
+
+const onReactAsUp = () => {
+  mutate({
+    vote: 'up'
+  })
+}
 </script>
 
 <template>
@@ -88,6 +104,7 @@ const onRemoveWhisper = () => {}
     >
       <button
         :class="`fa-action-btn wvb-works${whisper.myVote === 'up' ? ' active' : ''}`"
+        @click="onReactAsUp"
       >
         <svg
           width="13"
@@ -109,6 +126,7 @@ const onRemoveWhisper = () => {}
 
       <button
         :class="`fa-action-btn wvb-not${whisper.myVote === 'down' ? ' active' : ''}`"
+        @click="onReactAsDown"
       >
         <svg
           width="13"
@@ -134,6 +152,7 @@ const onRemoveWhisper = () => {}
 
       <button
         :class="`fa-action-btn${isCommentsVisible ? ' wv-comments-open' : ''}`"
+        @click="isCommentsVisible = !isCommentsVisible"
       >
         <svg
           width="13"
@@ -152,7 +171,9 @@ const onRemoveWhisper = () => {}
         {{ whisper.commentsCount > 0 ? whisper.commentsCount : 'Комментарии' }}
       </button>
 
-      <button class="acc-btn-visibility acc-btn-delete-gray">Удалить</button>
+      <button class="acc-btn-visibility acc-btn-delete-gray" @click="onRemove">
+        Удалить
+      </button>
     </div>
   </div>
 </template>

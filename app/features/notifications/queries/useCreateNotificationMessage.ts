@@ -1,6 +1,9 @@
 import { useMutation, useQueryCache } from '@pinia/colada'
 
-export const useCreateNotificationMessage = (id: number) => {
+export const useCreateNotificationMessage = (
+  id: number,
+  onSuccess: () => void
+) => {
   const { $api } = useNuxtApp()
   const queryCache = useQueryCache()
 
@@ -12,7 +15,10 @@ export const useCreateNotificationMessage = (id: number) => {
       })
     },
     onSuccess: () => {
+      queryCache.invalidateQueries({ key: ['notifications'] })
       queryCache.invalidateQueries({ key: ['notification-messages', id] })
+
+      onSuccess()
     }
   })
 }

@@ -6058,6 +6058,7 @@ body.dark .req-card--pending {
 }
 .req-confirm-ok--reject {
   background: var(--urgent);
+  color: var(--text);
 }
 
 /* ── NOTIFICATION BADGES (sidebar + mobile) ── */

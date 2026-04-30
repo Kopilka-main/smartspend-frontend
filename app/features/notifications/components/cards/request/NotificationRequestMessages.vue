@@ -1,9 +1,34 @@
 <script setup lang="ts">
+import { formatDistanceToNowStrict } from 'date-fns'
+import { ru } from 'date-fns/locale'
+import { useCurrentUser } from '~/composables/useCurrentUser'
+import { useCreateNotificationMessage } from '~/features/notifications/queries/useCreateNotificationMessage'
+import { useNotificationMessages } from '~/features/notifications/composables/useNotificationMessages'
+
 type NotificationRequestMessagesProps = {
-  messages: any[]
+  requestId: number
 }
 
-defineProps<NotificationRequestMessagesProps>()
+const props = defineProps<NotificationRequestMessagesProps>()
+
+const text = ref('')
+
+const { currentUser } = useCurrentUser()
+const { messages } = useNotificationMessages(props.requestId)
+const { mutate, isLoading } = useCreateNotificationMessage(
+  props.requestId,
+  () => {
+    text.value = ''
+  }
+)
+
+const onSubmit = () => {
+  if (text.value.length) {
+    mutate({
+      text: text.value
+    })
+  }
+}
 </script>
 
 <template>
@@ -12,16 +37,28 @@ defineProps<NotificationRequestMessagesProps>()
       <div
         v-for="message in messages"
         :key="message.id"
-        :class="`req-msg${message.from === 'me' ? ' req-msg--mine' : ''}`"
+        :class="`req-msg${message.userId === currentUser?.id ? ' req-msg--mine' : ''}`"
       >
         <div class="req-msg-bubble">{{ message.text }}</div>
-        <div class="req-msg-time">{{ message.time }}</div>
+
+        <div class="req-msg-time">
+          {{
+            formatDistanceToNowStrict(message.createdAt, {
+              locale: ru,
+              addSuffix: true
+            })
+          }}
+        </div>
       </div>
     </div>
     <div class="req-msg-input-row">
-      <input class="req-msg-input" placeholder="Написать сообщение..." />
+      <input
+        v-model="text"
+        class="req-msg-input"
+        placeholder="Написать сообщение..."
+      />
 
-      <button class="req-msg-send-btn">
+      <button class="req-msg-send-btn" :disabled="isLoading" @click="onSubmit">
         <svg
           width="14"
           height="14"

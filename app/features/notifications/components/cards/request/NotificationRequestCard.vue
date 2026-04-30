@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useNotificationRequestAction } from '~/features/notifications/queries/useNotificationRequestAction'
+import { useNotificationConfirmModal } from '~/features/notifications/composables/useNotificationConfirmModal'
 import type { NotificationItem } from '~/types'
 
 import NotificationRequestMessages from '~/features/notifications/components/cards/request/NotificationRequestMessages.vue'
@@ -11,6 +12,7 @@ type NotificationRequestCardProps = {
 const props = defineProps<NotificationRequestCardProps>()
 
 const router = useRouter()
+const notificationConfirmModal = useNotificationConfirmModal()
 const { mutate } = useNotificationRequestAction(props.request.id)
 
 const isPending = computed(() => {
@@ -41,19 +43,40 @@ const onShowArticle = () => {
 }
 
 const onDiscuss = () => {
-  showDiscuss.value = true
+  showDiscuss.value = !showDiscuss.value
 }
 
 const onReject = () => {
-  mutate({
-    status: 'reject'
+  notificationConfirmModal.patchOptions({
+    attrs: {
+      type: 'reject',
+      onConfirm: () => {
+        mutate({
+          status: 'reject'
+        })
+
+        notificationConfirmModal.close()
+      }
+    }
   })
+  notificationConfirmModal.open()
 }
 
 const onApprove = () => {
-  mutate({
-    status: 'approve'
+  notificationConfirmModal.patchOptions({
+    attrs: {
+      type: 'approve',
+      setTitle: props.request.setTitle,
+      onConfirm: () => {
+        mutate({
+          status: 'approve'
+        })
+
+        notificationConfirmModal.close()
+      }
+    }
   })
+  notificationConfirmModal.open()
 }
 
 const onWithdraw = () => {
@@ -217,6 +240,6 @@ const onWithdraw = () => {
       </div>
     </div>
 
-    <NotificationRequestMessages v-if="showDiscuss" :messages="[]" />
+    <NotificationRequestMessages v-if="showDiscuss" :request-id="request.id" />
   </div>
 </template>

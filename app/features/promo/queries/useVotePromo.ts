@@ -13,6 +13,7 @@ export const useVotePromo = (id: string) => {
     },
     onSuccess() {
       queryCache.invalidateQueries({ key: ['promo'] })
+      queryCache.invalidateQueries({ key: ['my-whispers'] })
     }
   })
 }

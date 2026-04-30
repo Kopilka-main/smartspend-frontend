@@ -23,7 +23,7 @@ const { notifications } = useNotifications()
 
 const selectedFilter = ref('all')
 
-const FILTERS = [
+const filterOptions = [
   { id: 'all', label: 'Все' },
   { id: 'subs', label: 'Подписки' },
   { id: 'replies', label: 'Ответы' },
@@ -31,8 +31,12 @@ const FILTERS = [
   { id: 'requests', label: 'Запросы' }
 ]
 
+const activeNotifications = computed(() => {
+  return notifications.value.filter((notification) => !notification.isDeleted)
+})
+
 const requests = computed(() => {
-  return notifications.value.filter(
+  return activeNotifications.value.filter(
     (notification) => notification.type === 'request'
   )
 })
@@ -43,36 +47,36 @@ const pendingRequests = computed(() => {
   )
 })
 
-const closedRequests = computed<any[]>(() => {
-  return []
-})
-
-const deletedRequests = computed<any[]>(() => {
-  return []
+const closedRequests = computed(() => {
+  return requests.value.filter(
+    (notification) =>
+      notification.actionStatus === 'approved' ||
+      notification.actionStatus === 'rejected'
+  )
 })
 
 const unreadNotifications = computed(() => {
   if (selectedFilter.value === 'all') {
-    return notifications.value.filter(
+    return activeNotifications.value.filter(
       (notification) => !notification.isRead && notification.type !== 'request'
     )
   }
 
   if (selectedFilter.value === 'subs') {
-    return notifications.value.filter(
+    return activeNotifications.value.filter(
       (notification) =>
         !notification.isRead && notification.type === 'subscription'
     )
   }
 
   if (selectedFilter.value === 'replies') {
-    return notifications.value.filter(
+    return activeNotifications.value.filter(
       (notification) => !notification.isRead && notification.type === 'reply'
     )
   }
 
   if (selectedFilter.value === 'reminders') {
-    return notifications.value.filter(
+    return activeNotifications.value.filter(
       (notification) => !notification.isRead && notification.type === 'reminder'
     )
   }
@@ -82,26 +86,26 @@ const unreadNotifications = computed(() => {
 
 const readNotifications = computed(() => {
   if (selectedFilter.value === 'all') {
-    return notifications.value.filter(
+    return activeNotifications.value.filter(
       (notification) => notification.isRead && notification.type !== 'request'
     )
   }
 
   if (selectedFilter.value === 'subs') {
-    return notifications.value.filter(
+    return activeNotifications.value.filter(
       (notification) =>
         notification.isRead && notification.type === 'subscription'
     )
   }
 
   if (selectedFilter.value === 'replies') {
-    return notifications.value.filter(
+    return activeNotifications.value.filter(
       (notification) => notification.isRead && notification.type === 'reply'
     )
   }
 
   if (selectedFilter.value === 'reminders') {
-    return notifications.value.filter(
+    return activeNotifications.value.filter(
       (notification) => notification.isRead && notification.type === 'reminder'
     )
   }
@@ -127,7 +131,7 @@ const readNotifications = computed(() => {
 
     <div id="sp-notif-filters" class="notif-filters">
       <button
-        v-for="filter in FILTERS"
+        v-for="filter in filterOptions"
         :key="filter.id"
         :class="`notif-filter-btn${selectedFilter === filter.id ? ' active' : ''}`"
         @click="selectedFilter = filter.id"
@@ -174,40 +178,6 @@ const readNotifications = computed(() => {
               :request="request"
             />
           </NotificationsGroup>
-
-          <NotificationsGroup
-            v-if="deletedRequests.length > 0"
-            label="Удалённые"
-            :label-style="{ marginTop: '20px' }"
-          >
-            <div class="req-trash-banner">
-              <svg
-                width="14"
-                height="14"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-                <path d="M10 11v6m4-6v6" />
-                <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-              </svg>
-
-              <span>Корзина автоматически очистится через 2 недели</span>
-
-              <button class="req-trash-clear-btn">Очистить все</button>
-            </div>
-
-            <NotificationRequestCard
-              v-for="request in deletedRequests"
-              :key="request.id"
-              :request="request"
-            />
-          </NotificationsGroup>
         </template>
       </template>
 
@@ -234,7 +204,7 @@ const readNotifications = computed(() => {
           />
         </NotificationsGroup>
 
-        <NotificationsItemsEmpty v-if="notifications.length === 0" />
+        <NotificationsItemsEmpty v-if="activeNotifications.length === 0" />
       </template>
     </div>
   </main>
